@@ -1,103 +1,58 @@
+from ultralytics import YOLOWorld, YOLO
 import cv2
-import argparse
-import torch
 import supervision as sv
-from mmengine.config import Config, DictAction
-from mmengine.runner import Runner
-from mmengine.runner.amp import autocast
-from mmengine.dataset import Compose
-from mmyolo.registry import RUNNERS
-
-BOUNDING_BOX_ANNOTATOR = sv.BoundingBoxAnnotator()
-LABEL_ANNOTATOR = sv.LabelAnnotator()
+import argparse
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description='YOLO-World Demo')
-    parser.add_argument('config', help='test config file path')
-    parser.add_argument('checkpoint', help='checkpoint file')
-    parser.add_argument('--device', default='cuda:0', help='device used for inference.')
-    parser.add_argument(
-        '--cfg-options',
-        nargs='+',
-        action=DictAction,
-        help='override some settings in the used config, the key-value pair '
-        'in xxx=yyy format will be merged into config file. If the value to '
-        'be overwritten is a list, it should be like key="[a,b]" or key=a,b '
-        'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
-        'Note that the quotation marks are necessary and that no white space '
-        'is allowed.')
+def parse_arguments() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description='YOLO-World live')
+    parser.add_argument("--src", default=None, type=str)
+    parser.add_argument("--obj-name", default=None, type=str)
     args = parser.parse_args()
     return args
 
 
-def inference_detector(runner,
-                       frame,
-                       use_amp=False):
+def main():
+    # args = parse_arguments()
+    # src = args.src
+    # obj_name = args.obj_name
+    obj_name = "remote"
+    src = 0
+    model = YOLOWorld('yolov8m-world.pt')
 
-    data_info = dict(img_id=0, img_path='dummy_path', texts=[['']])
-    data_info = runner.pipeline(data_info)
-    data_batch = dict(inputs=data_info['inputs'].unsqueeze(0),
-                      data_samples=[data_info['data_samples']])
+    if obj_name == None:
+        obj_name = ""
+    model.set_classes([obj_name])
 
-    with autocast(enabled=use_amp), torch.no_grad():
-        output = runner.model.test_step(data_batch)[0]
-        pred_instances = output.pred_instances
+    bbox_annotator = sv.BoundingBoxAnnotator()
+    label_annotator = sv.LabelAnnotator()
 
-    pred_instances = pred_instances.cpu().numpy()
-    detections = sv.Detections(xyxy=pred_instances['bboxes'],
-                               class_id=pred_instances['labels'],
-                               confidence=pred_instances['scores'])
-
-    labels = [
-        f"{idx}: {class_id[0]} {confidence:.2f}" for idx, (class_id, confidence) in
-        enumerate(zip(detections.class_id, detections.confidence))
-    ]
-
-    # label images
-    annotated_frame = BOUNDING_BOX_ANNOTATOR.annotate(frame, detections)
-    annotated_frame = LABEL_ANNOTATOR.annotate(annotated_frame, detections, labels=labels)
-    cv2.imshow('YOLO-World Demo', annotated_frame)
-    cv2.waitKey(0)  # Wait for any key press to close
+    cap = cv2.VideoCapture(src)
+    w, h, fps = (int(cap.get(x)) for x in (cv2.CAP_PROP_FRAME_WIDTH, cv2.CAP_PROP_FRAME_HEIGHT, cv2.CAP_PROP_FPS))
 
 
-if __name__ == '__main__':
-    args = parse_args()
+    while cap.isOpened():
+        ret, img = cap.read()
 
-    # Load config
-    cfg = Config.fromfile(args.config)
-    if args.cfg_options is not None:
-        cfg.merge_from_dict(args.cfg_options)
+        if not ret: break
 
-    cfg.work_dir = './work_dirs'
-    cfg.load_from = args.checkpoint
+        results = model.predict(img)
+        detections = sv.Detections.from_ultralytics(results[0])
 
-    if 'runner_type' not in cfg:
-        runner = Runner.from_cfg(cfg)
-    else:
-        runner = RUNNERS.build(cfg)
+        annotated_frame = bbox_annotator.annotate(
+            scene=img.copy(),
+            detections=detections
+        )
+        annotated_frame = label_annotator.annotate(
+            scene=annotated_frame,
+            detections=detections
+        )
 
-    runner.call_hook('before_run')
-    runner.load_or_resume()
-    pipeline = cfg.test_dataloader.dataset.pipeline
-    runner.pipeline = Compose(pipeline)
-    runner.model.eval()
+        cv2.imshow("test", annotated_frame)
 
-    # Open webcam
-    cap = cv2.VideoCapture(0)
-    if not cap.isOpened():
-        print("Error: Couldn't open webcam.")
-        exit()
-
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            print("Error: Couldn't read frame from webcam.")
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-        inference_detector(runner,
-                           frame,
-                           use_amp=False)  # Adjust as needed
 
-    cap.release()
-    cv2.destroyAllWindows()
+if __name__ == "__main__":
+    main()
