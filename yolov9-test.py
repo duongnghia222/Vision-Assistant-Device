@@ -16,13 +16,10 @@ def main():
     # args = parse_arguments()
     # src = args.src
     # obj_name = args.obj_name
-    obj_name = "air conditioner"
     src = 0
-    model = YOLOWorld('yolov8m-world.pt')
+    model = YOLO('yolov9c.yaml')
+    model = YOLO('yolov9c.pt')
 
-    if obj_name == None:
-        obj_name = ""
-    model.set_classes([obj_name])
 
     bbox_annotator = sv.BoundingBoxAnnotator()
     label_annotator = sv.LabelAnnotator()
@@ -40,7 +37,6 @@ def main():
 
         results = model.predict(img)
         detections = sv.Detections.from_ultralytics(results[0])
-
         annotated_frame = bbox_annotator.annotate(
             scene=img.copy(),
             detections=detections
@@ -56,6 +52,7 @@ def main():
 
         # Overlay FPS information onto the frame
         cv2.putText(annotated_frame, f"FPS: {fps_value:.2f}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
         cv2.imshow("test", annotated_frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
