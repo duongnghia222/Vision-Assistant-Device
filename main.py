@@ -6,7 +6,7 @@ import cv2
 import sys
 import os.path as osp
 from ultralytics import YOLOWorld
-from tools.finger_count import FingersCount
+# from tools.finger_count import FingersCount
 from tools.tracker import Tracker
 from tools.instruction import navigate_to_object
 from tools.voice_navigator import TextToSpeech
@@ -50,8 +50,9 @@ def run(yolo, voice):
                     data = stream.read(4096, exception_on_overflow=False)
                     if recognizer.AcceptWaveform(data):
                         text = recognizer.Result()
+                        print(text)
                         text = text[14:-3]
-                        # print(text)
+                        
                         if text == "ok" or text == "k" or text == "okay":
                             object_to_find = previous_text
                             break

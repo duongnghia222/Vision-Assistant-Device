@@ -1,2 +1,3 @@
 torch
 opencv-python
+vosk
