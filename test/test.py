@@ -71,7 +71,7 @@ def parse_arguments() -> argparse.Namespace:
     
     # The Inference package provides the YOLO-World model in three versions: S, M, and L. 
     # You can load them by defining model_id as yolo_world/s, yolo_world/m, and yolo_world/l, respectively.
-    parser.add_argument("--model-id", default='yolov8m-world.pt', type=str)
+    parser.add_argument("--model-id", default='yolov8l-worldv2.pt', type=str)
     args = parser.parse_args()
     return args
 
@@ -224,7 +224,7 @@ def infer_webcam(webcam_addr, classes, model_id, webcam_res, confidence=0.003, n
         prev_frame_time = time.time()
 
 
-def avoid_obstacles(webcam_addr, classes, model_id, webcam_res, confidence=0.25, nms_threshold=0.1):
+def avoid_obstacles(webcam_addr, classes, model_id, webcam_res, confidence=0.003, nms_threshold=0.1):
     width, height = webcam_res
     cap = cv2.VideoCapture(webcam_addr)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
