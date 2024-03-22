@@ -66,7 +66,7 @@ def run(yolo, voice):
                 mic.terminate()
                 print(object_to_find)
 
-            results = yolo.predict(color_frame)
+            results = yolo.predict(color_frame, verbose=False)
             detections = sv.Detections.from_ultralytics(results[0]).with_nms(threshold=iou_threshold)
             if detections:
                 detection = detections[0]
@@ -85,8 +85,8 @@ def run(yolo, voice):
                 )
                 xmin, ymin, xmax, ymax = map(int, detection.xyxy[0])
                 object_mask, depth = segment_object(depth_frame, [xmin, ymin, xmax, ymax])
-                instruction = navigate_to_object([xmin, ymin, xmax, ymax], depth, annotated_frame)
-                print(instruction)
+                instruction, degree = navigate_to_object([xmin, ymin, xmax, ymax], depth, 50, annotated_frame, visual=True)
+                print(instruction, degree)
 
         if mode == "SSG":
             pass

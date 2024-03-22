@@ -148,7 +148,7 @@ dmypy.json
 
 # pytype static type analyzer
 .pytype/
-
+tools/vosk-model-en-us-0.22-lgraph
 # Cython debug symbols
 cython_debug/
 

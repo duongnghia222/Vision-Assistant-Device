@@ -1,8 +1,6 @@
-import pyttsx3
+# Description: This file contains the function to navigate the blind user towards the object using audio instructions based on bounding box and depth information.
 import cv2
-
-
-def navigate_to_object(bbox, depth, color_frame, min_dis=50):
+def navigate_to_object(bbox, depth, min_dis, color_frame, visual=False):
     """
     Navigates the blind user towards the object using audio instructions based on bounding box and depth information.
 
@@ -19,18 +17,20 @@ def navigate_to_object(bbox, depth, color_frame, min_dis=50):
     print('depth', depth)
     # Adjust threshold based on depth
     middle_x = color_frame.shape[1] // 2
-    scale = 80000
-    middle_diff = (1/(depth+1))*scale
-
-    if middle_diff > 250:
-        middle_diff = 250
-    if middle_diff < 70:
+    if depth > 1000:
         middle_diff = 70
+    elif depth < 1000:
+        middle_diff = 100
+    elif 500 < depth < 1000:
+        middle_diff = 150
+    else:
+        middle_diff = 200
+
     left_bound = int(max(min(middle_x - middle_diff, color_frame.shape[1]), 0))
     right_bound = int(max(min(middle_x + middle_diff, color_frame.shape[1]), 0))
-    print(middle_diff)
-    cv2.line(color_frame, (left_bound, 0), (left_bound, color_frame.shape[0]), (0, 255, 0), 2)  # Left line
-    cv2.line(color_frame, (right_bound, 0), (right_bound, color_frame.shape[0]), (0, 255, 0), 2)  # Right line
+    if visual:
+        cv2.line(color_frame, (left_bound, 0), (left_bound, color_frame.shape[0]), (0, 255, 0), 2)  # Left line
+        cv2.line(color_frame, (right_bound, 0), (right_bound, color_frame.shape[0]), (0, 255, 0), 2)  # Right line
 
     # Determine the direction to move
     if box_center_x < middle_x - middle_diff:
@@ -46,4 +46,12 @@ def navigate_to_object(bbox, depth, color_frame, min_dis=50):
     else:
         instruction = f"{direction}"
 
-    return instruction
+    # Calculate pixel displacement from the center of the image
+    pixel_displacement = abs(color_frame.shape[1] / 2 - box_center_x)
+
+    # Calculate degrees per pixel
+    degrees_per_pixel = 69 / color_frame.shape[1]  # Horizontal field of view of the camera is 69 degrees
+
+    # Calculate the number of degrees of rotation required
+    rotation_degrees = pixel_displacement * degrees_per_pixel
+    return instruction, rotation_degrees
