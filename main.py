@@ -8,7 +8,7 @@ import os.path as osp
 from ultralytics import YOLOWorld
 from tools.finger_count import FingersCount
 from tools.tracker import Tracker
-from tools.instruction import navigate_to_object
+from tools.instruction import navigate_to_object, inform_object_location
 from tools.voice_navigator import TextToSpeech
 voice = TextToSpeech()
 from vosk import Model, KaldiRecognizer
@@ -18,7 +18,7 @@ recognizer = KaldiRecognizer(model, 16000)
 from tools.realsense_camera import *
 import supervision as sv
 from tools.custom_segmentation import segment_object
-
+from tools.obstacles_avoid import obstacles_detect
 iou_threshold = 0.1
 
 def run(yolo, voice):
@@ -30,6 +30,7 @@ def run(yolo, voice):
     yolo.set_classes([object_to_find])
     bbox_annotator = sv.BoundingBoxAnnotator()
     label_annotator = sv.LabelAnnotator()
+    annotated_frame = None
     while True:
         ret, color_frame, depth_frame = rs_camera.get_frame_stream()
         if not ret:
@@ -89,7 +90,9 @@ def run(yolo, voice):
                 print(instruction, degree)
 
         if mode == "SSG":
-            pass
+            object_segmentation = obstacles_detect(depth_frame, annotated_frame, [0, 0, 640, 480], 1500, 500, visual=True)
+            direction, degree = inform_object_location(object_segmentation)
+            print(direction, degree)
 
         cv2.imshow('RealSense Camera Detection', annotated_frame)
 

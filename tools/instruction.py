@@ -1,5 +1,10 @@
 # Description: This file contains the function to navigate the blind user towards the object using audio instructions based on bounding box and depth information.
 import cv2
+
+def inform_object_location(segmented_objects):
+    direction = ""
+    degree = 0
+    return direction, degree
 def navigate_to_object(bbox, depth, min_dis, color_frame, visual=False):
     """
     Navigates the blind user towards the object using audio instructions based on bounding box and depth information.
