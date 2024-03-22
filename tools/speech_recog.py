@@ -1,6 +1,7 @@
 import speech_recognition as sr
 from vosk import Model, KaldiRecognizer
 import pyaudio
+import time
 
 # Initialize recognizer
 # r = sr.Recognizer()
@@ -8,19 +9,18 @@ model = Model(r"vosk-model-small-en-us-0.15")
 recognizer = KaldiRecognizer(model, 16000)
 mic = pyaudio.PyAudio()
 
-stream = mic.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=8192)
+stream = mic.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=4096)
 stream.start_stream()
 
 while True:
-    data = stream.read(4096)
-
+    data = stream.read(2048)
     if recognizer.AcceptWaveform(data):
+        print("Accepted")
         text = recognizer.Result()
         print(f"' {text[14:-3]} '")
         if text[14:-3] == 'bottle':
             break
-
-
+    # time.sleep(1)
 
 
 

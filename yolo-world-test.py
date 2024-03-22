@@ -16,13 +16,13 @@ def main():
     # args = parse_arguments()
     # src = args.src
     # obj_name = args.obj_name
-    obj_name = "air conditioner"
+    obj_name = ["fan"]
     src = 0
     model = YOLOWorld('yolov8m-world.pt')
 
     if obj_name == None:
         obj_name = ""
-    model.set_classes([obj_name])
+    model.set_classes(obj_name)
 
     bbox_annotator = sv.BoundingBoxAnnotator()
     label_annotator = sv.LabelAnnotator()
@@ -39,16 +39,28 @@ def main():
             break
 
         results = model.predict(img)
-        detections = sv.Detections.from_ultralytics(results[0])
 
+        print(results)
+        detections = sv.Detections.from_ultralytics(results[0])
+        labels = [
+            f"{obj_name[class_id]} {confidence:0.3f}"
+            for class_id, confidence
+            in zip(detections.class_id, detections.confidence)
+        ]
         annotated_frame = bbox_annotator.annotate(
             scene=img.copy(),
             detections=detections
         )
         annotated_frame = label_annotator.annotate(
             scene=annotated_frame,
-            detections=detections
+            detections=detections,
+            labels=labels
         )
+
+        # confidences = [detection.confidence for detection in detections]
+
+        # Add confidence scores to the annotated frame
+
         # Calculate FPS
         frame_count += 1
         elapsed_time = time.time() - start_time

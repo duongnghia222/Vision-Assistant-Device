@@ -13,19 +13,23 @@ from tools.voice_navigator import TextToSpeech
 voice = TextToSpeech()
 from vosk import Model, KaldiRecognizer
 import pyaudio
-model = Model(r"tools/vosk-model-small-en-us-0.15")
+model = Model(r"tools/vosk-model-en-us-0.22-lgraph")
 recognizer = KaldiRecognizer(model, 16000)
 from tools.realsense_camera import *
+import supervision as sv
 from tools.custom_segmentation import segment_object
 
-
+iou_threshold = 0.1
 
 def run(yolo, voice):
-    rs_camera = RealsenseCamera(width=1280, height=720) # This is max allowed
+    rs_camera = RealsenseCamera(width=640, height=480) # This is max allowed
     print("Starting RealSense camera. Press 'q' to quit.")
-    mode = 'finding'  # For debug, change to disabled after that
+    mode = 'BGF'  # For debug, change to disabled after that
     detection = None
-    object_to_find = None
+    object_to_find = "bottle"
+    yolo.set_classes([object_to_find])
+    bbox_annotator = sv.BoundingBoxAnnotator()
+    label_annotator = sv.LabelAnnotator()
     while True:
         ret, color_frame, depth_frame = rs_camera.get_frame_stream()
         if not ret:
@@ -38,7 +42,7 @@ def run(yolo, voice):
             pass
 
         # Implement the functionalities for each mode
-        if mode == 'finding':
+        if mode == 'BGF':
             if not object_to_find:
                 previous_text = None
                 voice.speak("What you want to find")
@@ -51,28 +55,43 @@ def run(yolo, voice):
                     if recognizer.AcceptWaveform(data):
                         text = recognizer.Result()
                         text = text[14:-3]
-                        # print(text)
+                        print(text)
                         if text == "ok" or text == "k" or text == "okay":
                             object_to_find = previous_text
                             break
                         voice.speak("You want to find {} !Say ok to confirm".format(text))
                         previous_text = text
-
-
-
                 stream.stop_stream()
                 stream.close()
                 mic.terminate()
                 print(object_to_find)
 
+            results = yolo.predict(color_frame)
+            detections = sv.Detections.from_ultralytics(results[0]).with_nms(threshold=iou_threshold)
+            if detections:
+                detection = detections[0]
+                annotated_frame = bbox_annotator.annotate(
+                    scene=color_frame.copy(),
+                    detections=detection
+                )
+                annotated_frame = label_annotator.annotate(
+                    scene=annotated_frame,
+                    detections=detection,
+                    labels=[
+                        f"{object_to_find} {confidence:0.3f}"
+                        for class_id, confidence
+                        in zip(detection.class_id, detection.confidence)
+                    ]
+                )
+                xmin, ymin, xmax, ymax = map(int, detection.xyxy[0])
+                object_mask, depth = segment_object(depth_frame, [xmin, ymin, xmax, ymax])
+                instruction = navigate_to_object([xmin, ymin, xmax, ymax], depth, annotated_frame)
+                print(instruction)
 
+        if mode == "SSG":
+            pass
 
-
-
-
-
-        cv2.imshow('RealSense Camera Detection', color_frame)
-
+        cv2.imshow('RealSense Camera Detection', annotated_frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -86,7 +105,7 @@ if __name__ == "__main__":
     DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     screen_width, screen_height = [720, 1280]
     yolo = YOLOWorld('yolov8m-world.pt')
-    voice.speak("Please wait for system to start")
+    # voice.speak("Please wait for system to start")
     run(yolo, voice)
 
 
