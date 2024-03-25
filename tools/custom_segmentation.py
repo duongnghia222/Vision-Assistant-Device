@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 
 
-def segment_object(depth_frame, bbox):
-    xmin, ymin, xmax, ymax = bbox
+def segment_object(depth_frame, roi, threshold_value=10):
+    xmin, ymin, xmax, ymax = roi
 
     # Calculate the center of the bounding box
     center_x = (xmin + xmax) // 2
@@ -11,9 +11,6 @@ def segment_object(depth_frame, bbox):
 
     # Extract the center depth value
     center_depth = depth_frame[center_y, center_x]
-
-    # Define the threshold value
-    threshold_value = 10
 
     # Extract ROI from the depth image
     roi = depth_frame[ymin:ymax, xmin:xmax]

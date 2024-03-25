@@ -18,7 +18,7 @@ recognizer = KaldiRecognizer(model, 16000)
 from tools.realsense_camera import *
 import supervision as sv
 from tools.custom_segmentation import segment_object
-from tools.obstacles_avoid import obstacles_detect
+from tools.obstacles_detect import obstacles_detect
 iou_threshold = 0.1
 
 def run(yolo, voice):
@@ -30,7 +30,7 @@ def run(yolo, voice):
     yolo.set_classes([object_to_find])
     bbox_annotator = sv.BoundingBoxAnnotator()
     label_annotator = sv.LabelAnnotator()
-    annotated_frame = None
+
     while True:
         ret, color_frame, depth_frame = rs_camera.get_frame_stream()
         if not ret:
@@ -71,12 +71,12 @@ def run(yolo, voice):
             detections = sv.Detections.from_ultralytics(results[0]).with_nms(threshold=iou_threshold)
             if detections:
                 detection = detections[0]
-                annotated_frame = bbox_annotator.annotate(
+                color_frame = bbox_annotator.annotate(
                     scene=color_frame.copy(),
                     detections=detection
                 )
-                annotated_frame = label_annotator.annotate(
-                    scene=annotated_frame,
+                color_frame = label_annotator.annotate(
+                    scene=color_frame,
                     detections=detection,
                     labels=[
                         f"{object_to_find} {confidence:0.3f}"
@@ -86,15 +86,16 @@ def run(yolo, voice):
                 )
                 xmin, ymin, xmax, ymax = map(int, detection.xyxy[0])
                 object_mask, depth = segment_object(depth_frame, [xmin, ymin, xmax, ymax])
-                instruction, degree = navigate_to_object([xmin, ymin, xmax, ymax], depth, 50, annotated_frame, visual=True)
+                instruction, degree = navigate_to_object([xmin, ymin, xmax, ymax], depth, 50, color_frame, visual=True)
                 print(instruction, degree)
 
         if mode == "SSG":
-            object_segmentation = obstacles_detect(depth_frame, annotated_frame, [0, 0, 640, 480], 1500, 500, visual=True)
-            direction, degree = inform_object_location(object_segmentation)
-            print(direction, degree)
-
-        cv2.imshow('RealSense Camera Detection', annotated_frame)
+            # object_segmentation = obstacles_detect(depth_frame, [0, 0, 640, 480], 1500, 500, color_frame, visual=True)
+            # direction, degree = inform_object_location(object_segmentation)
+            # print(direction, degree)
+            pass
+        if color_frame is not None:
+            cv2.imshow('RealSense Camera Detection', color_frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
