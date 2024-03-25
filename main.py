@@ -24,7 +24,7 @@ iou_threshold = 0.1
 def run(yolo, voice):
     rs_camera = RealsenseCamera(width=640, height=480) # This is max allowed
     print("Starting RealSense camera. Press 'q' to quit.")
-    mode = 'BGF'  # For debug, change to disabled after that
+    mode = 'SSG'  # For debug, change to disabled after that
     detection = None
     object_to_find = "bottle"
     yolo.set_classes([object_to_find])
@@ -90,7 +90,7 @@ def run(yolo, voice):
                 print(instruction, degree)
 
         if mode == "SSG":
-            # object_segmentation = obstacles_detect(depth_frame, [0, 0, 640, 480], 1500, 500, color_frame, visual=True)
+            object_segmentation = obstacles_detect(depth_frame, [0, 0, 640, 480], 500, 5000, color_frame, visual=True)
             # direction, degree = inform_object_location(object_segmentation)
             # print(direction, degree)
             pass

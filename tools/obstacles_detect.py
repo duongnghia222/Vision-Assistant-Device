@@ -11,16 +11,16 @@ def obstacles_detect(depth_frame, roi, distance_threshold, size_threshold, color
     # Threshold the depth values
     mask = (roi_depth_frame < distance_threshold).astype(np.uint8) * 255
 
-    # Show disparity map of depth frame
-    if visual:
-        depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(roi_depth_frame, alpha=0.03), cv2.COLORMAP_JET)
-        cv2.imshow('Disparity Map', depth_colormap)
-        cv2.waitKey(0)
-    # Only Show disparity map of depth frame with pixel values where mask is 1
-    if visual:
-        depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(roi_depth_frame * mask, alpha=0.03), cv2.COLORMAP_JET)
-        cv2.imshow('Disparity Map With Mask', depth_colormap)
-        cv2.waitKey(0)
+    # # Show disparity map of depth frame
+    # if visual:
+    #     depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(roi_depth_frame, alpha=0.03), cv2.COLORMAP_JET)
+    #     cv2.imshow('Disparity Map', depth_colormap)
+    #     cv2.waitKey(0)
+    # # Only Show disparity map of depth frame with pixel values where mask is 1
+    # if visual:
+    #     depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(roi_depth_frame * mask, alpha=0.03), cv2.COLORMAP_JET)
+    #     cv2.imshow('Disparity Map With Mask', depth_colormap)
+    #     cv2.waitKey(0)
 
     # Clustering mask into different obstacles
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -29,24 +29,18 @@ def obstacles_detect(depth_frame, roi, distance_threshold, size_threshold, color
         if cv2.contourArea(contour) > size_threshold:
             print(cv2.contourArea(contour))
             x, y, w, h = cv2.boundingRect(contour)
-            # Change to xyxy format
-            x += xmin
-            y += ymin
-            obstacles.append([x, y, x + w, y + h])
+            obstacles.append([x+xmin, y+ymin, x + w, y + h])
     # draw obstacles on depth frame
     if visual:
         for obstacle in obstacles:
-            depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_frame, alpha=0.03), cv2.COLORMAP_JET)
             x1, y1, x2, y2 = obstacle
-            cv2.rectangle(depth_colormap, (x1, y1), (x2, y2), (0, 255, 0), 2)
-        cv2.imshow('Disparity Map With Obstacles', depth_colormap)
-        cv2.waitKey(0)
+            cv2.rectangle(color_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
     return obstacles
 
-# Load json file
-with open('../depth_frame_values.json', 'r') as file:
-    depth_frame = np.array(json.load(file))
-obstacles = obstacles_detect(depth_frame, [0, 0, 640, 480], 500, 0, None, visual=True)
-print(obstacles)
+# # Load json file
+# with open('../depth_frame_values.json', 'r') as file:
+#     depth_frame = np.array(json.load(file))
+# obstacles = obstacles_detect(depth_frame, [0, 0, 640, 480], 500, 10000, None, visual=True)
+# print(obstacles)
 
