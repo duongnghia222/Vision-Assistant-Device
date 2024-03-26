@@ -3,7 +3,7 @@ import numpy as np
 import json
 import time
 
-def obstacles_detect(depth_frame, roi, distance_threshold, size_threshold, color_frame, visual=False):
+def obstacles_detect(depth_frame, roi, distance_threshold, size_threshold):
     xmin, ymin, xmax, ymax = roi
     # extract roi from depth frame
     roi_depth_frame = depth_frame[ymin:ymax, xmin:xmax]
@@ -23,14 +23,9 @@ def obstacles_detect(depth_frame, roi, distance_threshold, size_threshold, color
             # Append the obstacle coordinates, area, and distance to the list
             obstacles.append({
                 'coordinates': (x + xmin, y + ymin, x + w + xmin, y + h + ymin),
-                'area': cv2.contourArea(contour),
-                'distance': distance
+                'area': int(cv2.contourArea(contour)),
+                'distance': int(distance)
             })
-    # draw obstacles on depth frame
-    if visual:
-        for obstacle in obstacles:
-            x1, y1, x2, y2 = obstacle['coordinates']
-            cv2.rectangle(color_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
     return obstacles
 

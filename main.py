@@ -86,12 +86,12 @@ def run(yolo, voice):
                 )
                 xmin, ymin, xmax, ymax = map(int, detection.xyxy[0])
                 object_mask, depth = segment_object(depth_frame, [xmin, ymin, xmax, ymax])
-                instruction, degree = navigate_to_object([xmin, ymin, xmax, ymax], depth, 50, color_frame, visual=True)
+                instruction, degree = navigate_to_object([xmin, ymin, xmax, ymax], depth, 50, color_frame, voice=None, visual=True)
                 print(instruction, degree)
 
         if mode == "SSG":
-            object_segmentation = obstacles_detect(depth_frame, [0, 0, 640, 480], 500, 15000, color_frame, visual=True)
-            # direction, degree = inform_object_location(object_segmentation)
+            obstacles = obstacles_detect(depth_frame, [0, 0, 640, 480], 1000, 15000)
+            direction, degree = inform_object_location(obstacles, voice=None, color_frame=color_frame, visual=True)
             # print(direction, degree)
             pass
         if color_frame is not None:

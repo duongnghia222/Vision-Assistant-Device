@@ -1,11 +1,28 @@
 # Description: This file contains the function to navigate the blind user towards the object using audio instructions based on bounding box and depth information.
 import cv2
 
-def inform_object_location(segmented_objects):
+
+def inform_object_location(obstacles, voice, color_frame, visual=False):
+    # Sort obstacles based on distance
+    obstacles = sorted(obstacles, key=lambda x: x['distance'], reverse=True)
+    for obstacle in obstacles:
+        x1, y1, x2, y2 = obstacle['coordinates']
+        area = obstacle['area']
+        distance = obstacle['distance']
+        print("Area:", area, "Distance:", distance)
+    if voice:
+        voice.speak(f"Object at {obstacles[0]['distance']} millimeters")
     direction = ""
     degree = 0
+    # draw obstacles on depth frame
+    if visual:
+        for obstacle in obstacles:
+            x1, y1, x2, y2 = obstacle['coordinates']
+            cv2.rectangle(color_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
     return direction, degree
-def navigate_to_object(bbox, depth, min_dis, color_frame, visual=False):
+
+
+def navigate_to_object(bbox, depth, min_dis, color_frame, voice, visual=False):
     """
     Navigates the blind user towards the object using audio instructions based on bounding box and depth information.
 
@@ -58,5 +75,12 @@ def navigate_to_object(bbox, depth, min_dis, color_frame, visual=False):
     degrees_per_pixel = 69 / color_frame.shape[1]  # Horizontal field of view of the camera is 69 degrees
 
     # Calculate the number of degrees of rotation required
-    rotation_degrees = pixel_displacement * degrees_per_pixel
+    rotation_degrees = int(pixel_displacement * degrees_per_pixel)
+    if voice:
+        if instruction == "stop":
+            voice.speak(instruction)
+        elif direction == "move forward":
+            voice.speak(instruction + " " + str(int(depth / 100)) + " meters away")
+        else:
+            voice.speak(instruction + " " + str(rotation_degrees) + " degrees")
     return instruction, rotation_degrees
