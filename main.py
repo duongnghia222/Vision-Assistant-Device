@@ -21,8 +21,9 @@ from tools.custom_segmentation import segment_object
 from tools.obstacles_detect import obstacles_detect
 iou_threshold = 0.1
 
+
 def run(yolo, voice):
-    rs_camera = RealsenseCamera(width=640, height=480) # This is max allowed
+    rs_camera = RealsenseCamera(width=640, height=480)  # This is max allowed
     print("Starting RealSense camera. Press 'q' to quit.")
     mode = 'SSG'  # For debug, change to disabled after that
     detection = None
@@ -94,8 +95,7 @@ def run(yolo, voice):
             direction, size = inform_object_location(obstacles, voice=None, color_frame=color_frame, visual=True)
             print(direction, size)
 
-        if color_frame is not None:
-            cv2.imshow('RealSense Camera Detection', color_frame)
+        cv2.imshow('RealSense Camera Detection', color_frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
