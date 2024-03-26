@@ -1,15 +1,15 @@
 import torch
 from torch.nn import functional as F
-from transformers import ViTImageProcessor, ViTForImageClassification
+from transformers import AutoImageProcessor, ResNetForImageClassification
 from PIL import Image
 import cv2
 import numpy as np
 import json
 
 # Load the model
-model_path = "../models/google-vit"
-model = ViTForImageClassification.from_pretrained(model_path)
-processor = ViTImageProcessor.from_pretrained(model_path)
+model_path = "../models/resnet-50"
+model = ResNetForImageClassification.from_pretrained(model_path)
+processor = AutoImageProcessor.from_pretrained(model_path)
 
 
 def perform_inference_topk(frame, k=5):
@@ -63,4 +63,3 @@ frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 class_labels, top5_probs = perform_inference_topk(frame, k=5)
 print("Top 5 predicted class labels:", class_labels)
 print("Top 5 confidence scores:", top5_probs)
-

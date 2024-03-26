@@ -152,6 +152,8 @@ tools/vosk-model-en-us-0.22-lgraph
 # Cython debug symbols
 cython_debug/
 models/google-vit/pytorch_model.bin
+models/resnet-50/pytorch_model.bin
+models/beit-base-patch16-224-pt22k-ft22k/pytorch_model.bin
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
