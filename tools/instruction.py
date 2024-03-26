@@ -3,23 +3,52 @@ import cv2
 
 
 def inform_object_location(obstacles, voice, color_frame, visual=False):
+    # If there is no obstacle detected return None
+    direction = None
+    size = None
+    if len(obstacles) == 0:
+        return direction, size
     # Sort obstacles based on distance
-    obstacles = sorted(obstacles, key=lambda x: x['distance'], reverse=True)
-    for obstacle in obstacles:
-        x1, y1, x2, y2 = obstacle['coordinates']
-        area = obstacle['area']
-        distance = obstacle['distance']
-        print("Area:", area, "Distance:", distance)
+    obstacles = sorted(obstacles, key=lambda x: x['distance'])
+    obstacle = obstacles[0]
+    x1, y1, x2, y2 = obstacle['coordinates']
+    distance = obstacle['distance']
+    area = obstacle['area']
+    obstacle_center_x = (x1 + x2) // 2
+    pixel_displacement = abs(color_frame.shape[1] / 2 - obstacle_center_x)
+    degrees_per_pixel = 69 / color_frame.shape[1]  # Horizontal field of view of the camera is 69 degrees
+    degree = int(pixel_displacement * degrees_per_pixel)
+
+    # Determine the direction of the obstacle
+    if degree < 10:
+        direction = "center"
+    elif 10 <= degree < 30 and color_frame.shape[1] / 2 - obstacle_center_x > 0:
+        direction = "slightly left"
+    elif 10 <= degree < 30 and color_frame.shape[1] / 2 - obstacle_center_x < 0:
+        direction = "slightly right"
+    elif degree > 30 and color_frame.shape[1] / 2 - obstacle_center_x > 0:
+        direction = "left"
+    elif degree > 30 and color_frame.shape[1] / 2 - obstacle_center_x < 0:
+        direction = "right"
+
+    # Determine the size of the obstacle
+    if area < 20000:
+        size = "small"
+    elif 20000 <= area < 40000:
+        size = "medium"
+    elif 40000 <= area < 80000:
+        size = "large"
+    else:
+        size = "very large"
     if voice:
-        voice.speak(f"Object at {obstacles[0]['distance']} millimeters")
-    direction = ""
-    degree = 0
+        voice.speak(f"{size} obstacle {distance// 100} meters away")
+
     # draw obstacles on depth frame
     if visual:
         for obstacle in obstacles:
-            x1, y1, x2, y2 = obstacle['coordinates']
-            cv2.rectangle(color_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-    return direction, degree
+            cv2.rectangle(color_frame, (obstacle['coordinates'][0], obstacle['coordinates'][1]),
+                          (obstacle['coordinates'][2], obstacle['coordinates'][3]), (0, 0, 255), 2)
+    return direction, size
 
 
 def navigate_to_object(bbox, depth, min_dis, color_frame, voice, visual=False):

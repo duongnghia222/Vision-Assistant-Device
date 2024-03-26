@@ -90,10 +90,10 @@ def run(yolo, voice):
                 print(instruction, degree)
 
         if mode == "SSG":
-            obstacles = obstacles_detect(depth_frame, [0, 0, 640, 480], 1000, 15000)
-            direction, degree = inform_object_location(obstacles, voice=None, color_frame=color_frame, visual=True)
-            # print(direction, degree)
-            pass
+            obstacles = obstacles_detect(depth_frame, [0, 0, screen_height, screen_width], 1000, 15000)
+            direction, size = inform_object_location(obstacles, voice=None, color_frame=color_frame, visual=True)
+            print(direction, size)
+
         if color_frame is not None:
             cv2.imshow('RealSense Camera Detection', color_frame)
 
