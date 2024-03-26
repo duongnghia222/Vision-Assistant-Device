@@ -11,29 +11,25 @@ def obstacles_detect(depth_frame, roi, distance_threshold, size_threshold, color
     # Threshold the depth values
     mask = (roi_depth_frame < distance_threshold).astype(np.uint8) * 255
 
-    # # Show disparity map of depth frame
-    # if visual:
-    #     depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(roi_depth_frame, alpha=0.03), cv2.COLORMAP_JET)
-    #     cv2.imshow('Disparity Map', depth_colormap)
-    #     cv2.waitKey(0)
-    # # Only Show disparity map of depth frame with pixel values where mask is 1
-    # if visual:
-    #     depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(roi_depth_frame * mask, alpha=0.03), cv2.COLORMAP_JET)
-    #     cv2.imshow('Disparity Map With Mask', depth_colormap)
-    #     cv2.waitKey(0)
-
     # Clustering mask into different obstacles
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     for contour in contours:
         if cv2.contourArea(contour) > size_threshold:
             print(cv2.contourArea(contour))
+            # Calculate the distance of the obstacle
+            distance = np.mean(roi_depth_frame[mask == 255])
             x, y, w, h = cv2.boundingRect(contour)
-            obstacles.append([x+xmin, y+ymin, x + w, y + h])
+            # Append the obstacle coordinates, area, and distance to the list
+            obstacles.append({
+                'coordinates': (x + xmin, y + ymin, x + w + xmin, y + h + ymin),
+                'area': cv2.contourArea(contour),
+                'distance': distance
+            })
     # draw obstacles on depth frame
     if visual:
         for obstacle in obstacles:
-            x1, y1, x2, y2 = obstacle
+            x1, y1, x2, y2 = obstacle['coordinates']
             cv2.rectangle(color_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
     return obstacles

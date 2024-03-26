@@ -90,7 +90,7 @@ def run(yolo, voice):
                 print(instruction, degree)
 
         if mode == "SSG":
-            object_segmentation = obstacles_detect(depth_frame, [0, 0, 640, 480], 500, 5000, color_frame, visual=True)
+            object_segmentation = obstacles_detect(depth_frame, [0, 0, 640, 480], 500, 15000, color_frame, visual=True)
             # direction, degree = inform_object_location(object_segmentation)
             # print(direction, degree)
             pass
