@@ -61,11 +61,15 @@ def run(yolo, classifier, voice):
                         text = recognizer.Result()
                         text = text[14:-3]
                         print(text)
-                        if text == "ok" or text == "k" or text == "okay":
-                            object_to_find = previous_text
-                            break
-                        voice.speak("You want to find {} !Say ok to confirm".format(text))
-                        previous_text = text
+                        if text.lower() in ["ok", "k", "okay"]:
+                            if previous_text:
+                                object_to_find = previous_text
+                                break
+                            else:
+                                voice.speak("Please provide a command first")
+                        else:
+                            previous_text = text
+                            voice.speak("You want to find {} !Say ok to confirm".format(text))
                 stream.stop_stream()
                 stream.close()
                 mic.terminate()
@@ -118,6 +122,7 @@ def run(yolo, classifier, voice):
 
 if __name__ == "__main__":
     DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(DEVICE)
     screen_width, screen_height = [720, 1280]
     yolo = YOLOWorld('yolov8m-world.pt')
     classifier = Classifier(model_path="models/resnet-50", visual=False)
