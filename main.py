@@ -34,7 +34,7 @@ def run(yolo, classifier, voice):
     label_annotator = sv.LabelAnnotator()
 
     while True:
-        ret, color_frame, depth_frame = rs_camera.get_frame_stream()
+        ret, color_frame, depth_frame, frame_number = rs_camera.get_frame_stream()
         if not ret:
             print("Error: Could not read frame.")
             break
@@ -93,8 +93,9 @@ def run(yolo, classifier, voice):
 
         if mode == "SSG":
             obstacles = obstacles_detect(depth_frame, [0, 0, screen_height, screen_width], 1000, 15000)
-            direction, size = inform_object_location(obstacles, voice=None, color_frame=color_frame, visual=True)
+            direction, size = inform_object_location(obstacles, classifier, voice=None, color_frame=color_frame, visual=True, use_classifier=True)
             print(direction, size)
+            print(frame_number)
 
         cv2.imshow('RealSense Camera Detection', color_frame)
 
@@ -110,7 +111,7 @@ if __name__ == "__main__":
     DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     screen_width, screen_height = [720, 1280]
     yolo = YOLOWorld('yolov8m-world.pt')
-    classifier = Classifier(model_path="models/resnet-50")
+    classifier = Classifier(model_path="models/resnet-50", visual=False)
     # voice.speak("Please wait for system to start")
     run(yolo, classifier, voice)
 

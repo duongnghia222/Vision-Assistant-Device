@@ -2,7 +2,7 @@
 import cv2
 
 
-def inform_object_location(obstacles, voice, color_frame, visual=False):
+def inform_object_location(obstacles, classifier, voice, color_frame, visual=False, use_classifier=True):
     # If there is no obstacle detected return None
     direction = None
     size = None
@@ -11,10 +11,18 @@ def inform_object_location(obstacles, voice, color_frame, visual=False):
     # Sort obstacles based on distance
     obstacles = sorted(obstacles, key=lambda x: x['distance'])
     obstacle = obstacles[0]
+
     x1, y1, x2, y2 = obstacle['coordinates']
     distance = obstacle['distance']
     area = obstacle['area']
     obstacle_center_x = (x1 + x2) // 2
+    if use_classifier:
+        # Classify the obstacle
+        obstacle_frame = color_frame[y1:y2, x1:x2]
+        obstacle_class, prob = classifier.predict(obstacle_frame)
+        print(obstacle_class, prob)
+        if voice:
+            voice.speak(f"Probably {obstacle_class} with confidence {int(prob)} percent")
     pixel_displacement = abs(color_frame.shape[1] / 2 - obstacle_center_x)
     degrees_per_pixel = 69 / color_frame.shape[1]  # Horizontal field of view of the camera is 69 degrees
     degree = int(pixel_displacement * degrees_per_pixel)

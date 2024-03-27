@@ -37,7 +37,7 @@ try:
         aligned_frames = align.process(frames)
         aligned_depth_frame = aligned_frames.get_depth_frame()  # aligned_depth_frame is a 640x480 depth image
         color_frame = aligned_frames.get_color_frame()
-
+        # print(color_frame.get_frame_number())
 
         depth_image = np.asanyarray(aligned_depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data())
