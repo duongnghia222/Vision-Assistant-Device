@@ -6,6 +6,7 @@ import cv2
 import sys
 import os.path as osp
 from ultralytics import YOLOWorld
+from tools.classifier import Classifier
 from tools.finger_count import FingersCount
 from tools.tracker import Tracker
 from tools.instruction import navigate_to_object, inform_object_location
@@ -22,7 +23,7 @@ from tools.obstacles_detect import obstacles_detect
 iou_threshold = 0.1
 
 
-def run(yolo, voice):
+def run(yolo, classifier, voice):
     rs_camera = RealsenseCamera(width=640, height=480)  # This is max allowed
     print("Starting RealSense camera. Press 'q' to quit.")
     mode = 'SSG'  # For debug, change to disabled after that
@@ -109,8 +110,9 @@ if __name__ == "__main__":
     DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     screen_width, screen_height = [720, 1280]
     yolo = YOLOWorld('yolov8m-world.pt')
+    classifier = Classifier(model_path="models/resnet-50")
     # voice.speak("Please wait for system to start")
-    run(yolo, voice)
+    run(yolo, classifier, voice)
 
 
 
