@@ -13,6 +13,7 @@ class RealsenseCamera:
         # width -> height
         config.enable_stream(rs.stream.color, width, height, rs.format.bgr8, 30)
         config.enable_stream(rs.stream.depth, width, height, rs.format.z16, 30)
+        config.enable_stream(rs.stream.infrared, 1, width, height, rs.format.y8, 30)
 
         # Start streaming
         self.pipeline.start(config)
@@ -26,6 +27,7 @@ class RealsenseCamera:
         aligned_frames = self.align.process(frames)
         depth_frame = aligned_frames.get_depth_frame()
         color_frame = aligned_frames.get_color_frame()
+        infrared_frame = aligned_frames.get_infrared_frame(1)
         frame_number = color_frame.get_frame_number()
         
         if not depth_frame or not color_frame:
@@ -48,11 +50,18 @@ class RealsenseCamera:
 
         depth_image = np.asanyarray(filled_depth.get_data())
         color_image = np.asanyarray(color_frame.get_data())
+        infrared_frame = np.asanyarray(infrared_frame.get_data())
 
-        return True, color_image, depth_image, frame_number
+        return True, color_image, depth_image, infrared_frame, frame_number
+
+    def get_fps(self):
+        profile = self.pipeline.get_active_profile()
+        color_profile = profile.get_stream(rs.stream.color)
+        return color_profile.get_framerate()
     
     def release(self):
         self.pipeline.stop()
+        print("Realsense Camera released")
         #print(depth_image)
         
         # Apply colormap on depth image (image must be converted to 8-bit per pixel first)

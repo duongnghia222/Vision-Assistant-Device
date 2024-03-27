@@ -13,19 +13,19 @@ import numpy as np
 rs_camera = RealsenseCamera(width=640, height=480) # This is max allowed
 print("Starting RealSense camera. Press 'q' to quit.")
 while True:
-    ret, color_frame, depth_frame = rs_camera.get_frame_stream()
+    ret, color_frame, depth_frame, infrared_frame, frame_number = rs_camera.get_frame_stream()
     if not ret:
         print("Error: Could not read frame.")
         break
 
     # Display the resulting frame
     cv2.imshow('Color Image', color_frame)
-    depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_frame, alpha=0.03), cv2.COLORMAP_JET)
-    cv2.imshow('Disparity Map', depth_colormap)
+    # depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_frame, alpha=0.03), cv2.COLORMAP_JET)
+    # cv2.imshow('Disparity Map', depth_colormap)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         # open json file to save color frame
-        with open('color_frame_values.json', 'w') as file:
-            json.dump(color_frame.tolist(), file)
+        with open('infrared_frame_values.json', 'w') as file:
+            json.dump(infrared_frame.tolist(), file)
         break
 
 

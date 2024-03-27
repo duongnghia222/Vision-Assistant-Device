@@ -17,7 +17,7 @@ pipeline = rs.pipeline()
 config = rs.config()
 config.enable_stream(rs.stream.depth, width, height, rs.format.z16, 30)
 config.enable_stream(rs.stream.color, width, height, rs.format.bgr8, 30)
-
+config.enable_stream(rs.stream.infrared, 1, width, height, rs.format.y8, 30)
 # Start streaming
 pipeline.start(config)
 
@@ -37,15 +37,18 @@ try:
         aligned_frames = align.process(frames)
         aligned_depth_frame = aligned_frames.get_depth_frame()  # aligned_depth_frame is a 640x480 depth image
         color_frame = aligned_frames.get_color_frame()
+        aligned_infrared_frame = aligned_frames.get_infrared_frame(1)
         # print(color_frame.get_frame_number())
-
         depth_image = np.asanyarray(aligned_depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data())
+        infrared_frame = np.asanyarray(aligned_infrared_frame.get_data())
         color_image_copy = color_image.copy()
 
         # Apply colormap for better visualizations
         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+        infrared_frame = cv2.applyColorMap(cv2.convertScaleAbs(infrared_frame, alpha=0.03), cv2.COLORMAP_JET)
 
+        # Show images
         depth_range_mask = np.logical_and(depth_image >= base_height, depth_image <= base_height + threshold)
 
 
@@ -58,6 +61,7 @@ try:
 
         # Display the resulting frame
         cv2.imshow('Disparity Map', depth_colormap)
+        cv2.imshow('Infrared', infrared_frame)
         cv2.imshow('Color Image with Black Pixels', color_image)
         cv2.imshow('Original Color Image', color_image_copy)
 

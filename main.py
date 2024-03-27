@@ -38,7 +38,6 @@ def run(yolo, classifier, voice):
         if not ret:
             print("Error: Could not read frame.")
             break
-        t1 = time.time()
 
         # Only change gestures if the current mode is disabled or a mode exit gesture is detected
         if mode == 'disabled':
@@ -98,6 +97,9 @@ def run(yolo, classifier, voice):
             print(frame_number)
 
         cv2.imshow('RealSense Camera Detection', color_frame)
+        fps = rs_camera.get_fps()
+        # put text on the frame
+        cv2.putText(color_frame, f"FPS: {fps}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
