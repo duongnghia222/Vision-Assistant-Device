@@ -28,6 +28,8 @@ try:
         # Convert infrared image to numpy array
         ir_image = np.asanyarray(ir_frame.get_data())
 
+        cv2.imshow('Infrared Image', ir_image)
+
         # Apply colormap to the infrared image to create a heatmap
         heatmap = cv2.applyColorMap(ir_image, heatmap_color_map)
 

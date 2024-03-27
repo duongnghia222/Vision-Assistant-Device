@@ -4,8 +4,10 @@ import os
 import time
 import cv2
 import sys
+import pyaudio
 import os.path as osp
 from ultralytics import YOLOWorld
+import supervision as sv
 from tools.classifier import Classifier
 from tools.finger_count import FingersCount
 from tools.tracker import Tracker
@@ -13,11 +15,10 @@ from tools.instruction import navigate_to_object, inform_object_location
 from tools.voice_navigator import TextToSpeech
 voice = TextToSpeech()
 from vosk import Model, KaldiRecognizer
-import pyaudio
+from tools.FPS import FPS
 model = Model(r"tools/vosk-model-en-us-0.22-lgraph")
 recognizer = KaldiRecognizer(model, 16000)
 from tools.realsense_camera import *
-import supervision as sv
 from tools.custom_segmentation import segment_object
 from tools.obstacles_detect import obstacles_detect
 iou_threshold = 0.1
@@ -32,8 +33,10 @@ def run(yolo, classifier, voice):
     yolo.set_classes([object_to_find])
     bbox_annotator = sv.BoundingBoxAnnotator()
     label_annotator = sv.LabelAnnotator()
+    fps = FPS(nsamples=50)
 
     while True:
+        t1 = time.time()
         ret, color_frame, depth_frame, frame_number = rs_camera.get_frame_stream()
         if not ret:
             print("Error: Could not read frame.")
@@ -96,16 +99,20 @@ def run(yolo, classifier, voice):
             print(direction, size)
             print(frame_number)
 
-        cv2.imshow('RealSense Camera Detection', color_frame)
-        fps = rs_camera.get_fps()
         # put text on the frame
-        cv2.putText(color_frame, f"FPS: {fps}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+        # FPS counter
+        t2 = time.time()
+        fps.update(1.0 / (t2 - t1))
+        avg_fps = fps.accumulate()
+        cv2.putText(color_frame, f"FPS: {avg_fps:.2f}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
+        cv2.imshow('RealSense Camera Detection', color_frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
     rs_camera.release()
     cv2.destroyAllWindows()
+    fps.reset()
 
 
 

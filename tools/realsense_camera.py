@@ -27,7 +27,7 @@ class RealsenseCamera:
         aligned_frames = self.align.process(frames)
         depth_frame = aligned_frames.get_depth_frame()
         color_frame = aligned_frames.get_color_frame()
-        infrared_frame = aligned_frames.get_infrared_frame(1)
+        # infrared_frame = aligned_frames.get_infrared_frame(1)
         frame_number = color_frame.get_frame_number()
         
         if not depth_frame or not color_frame:
@@ -50,14 +50,10 @@ class RealsenseCamera:
 
         depth_image = np.asanyarray(filled_depth.get_data())
         color_image = np.asanyarray(color_frame.get_data())
-        infrared_frame = np.asanyarray(infrared_frame.get_data())
+        # infrared_frame = np.asanyarray(infrared_frame.get_data())
 
-        return True, color_image, depth_image, infrared_frame, frame_number
+        return True, color_image, depth_image, frame_number
 
-    def get_fps(self):
-        profile = self.pipeline.get_active_profile()
-        color_profile = profile.get_stream(rs.stream.color)
-        return color_profile.get_framerate()
     
     def release(self):
         self.pipeline.stop()
