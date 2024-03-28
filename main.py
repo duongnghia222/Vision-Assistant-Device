@@ -12,12 +12,10 @@ from tools.classifier import Classifier
 from tools.finger_count import FingersCount
 from tools.tracker import Tracker
 from tools.instruction import navigate_to_object, inform_object_location
-from tools.voice_navigator import TextToSpeech
+from tools.voice_navigator import TextToSpeech, CommandRecognizer
 voice = TextToSpeech()
-from vosk import Model, KaldiRecognizer
+command_recognizer = CommandRecognizer("tools/vosk-model-en-us-0.22-lgraph", voice)
 from tools.FPS import FPS
-model = Model(r"tools/vosk-model-en-us-0.22-lgraph")
-recognizer = KaldiRecognizer(model, 16000)
 from tools.realsense_camera import *
 from tools.custom_segmentation import segment_object
 from tools.obstacles_detect import obstacles_detect
@@ -27,10 +25,10 @@ iou_threshold = 0.1
 def run(yolo, classifier, voice):
     rs_camera = RealsenseCamera(width=640, height=480)  # This is max allowed
     print("Starting RealSense camera. Press 'q' to quit.")
-    mode = 'SSG'  # For debug, change to disabled after that
+    mode = 'BGF'  # For debug, change to disabled after that
     detection = None
-    object_to_find = "bottle"
-    yolo.set_classes([object_to_find])
+    object_to_find = None
+
     bbox_annotator = sv.BoundingBoxAnnotator()
     label_annotator = sv.LabelAnnotator()
     fps = FPS(nsamples=50)
@@ -49,31 +47,8 @@ def run(yolo, classifier, voice):
         # Implement the functionalities for each mode
         if mode == 'BGF':
             if not object_to_find:
-                previous_text = None
-                voice.speak("What you want to find")
-                mic = pyaudio.PyAudio()
-
-                stream = mic.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=8192)
-                stream.start_stream()
-                while not object_to_find:
-                    data = stream.read(4096, exception_on_overflow=False)
-                    if recognizer.AcceptWaveform(data):
-                        text = recognizer.Result()
-                        text = text[14:-3]
-                        print(text)
-                        if text.lower() in ["ok", "k", "okay"]:
-                            if previous_text:
-                                object_to_find = previous_text
-                                break
-                            else:
-                                voice.speak("Please provide a command first")
-                        else:
-                            previous_text = text
-                            voice.speak("You want to find {} !Say ok to confirm".format(text))
-                stream.stop_stream()
-                stream.close()
-                mic.terminate()
-                print(object_to_find)
+                object_to_find = command_recognizer.recognize_command("What do you want to find?", "find")
+                yolo.set_classes([object_to_find])
 
             results = yolo.predict(color_frame, verbose=False)
             detections = sv.Detections.from_ultralytics(results[0]).with_nms(threshold=iou_threshold)
