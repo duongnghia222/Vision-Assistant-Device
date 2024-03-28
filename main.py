@@ -8,8 +8,6 @@ import pyaudio
 import os.path as osp
 from tools.yolo_world import YoloWorld
 from tools.classifier import Classifier
-from tools.finger_count import FingersCount
-from tools.tracker import Tracker
 from tools.instruction import navigate_to_object, inform_object_location
 from tools.virtual_assistant import VirtualAssistant
 virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph")
@@ -17,6 +15,8 @@ from tools.FPS import FPS
 from tools.realsense_camera import *
 from tools.custom_segmentation import segment_object
 from tools.obstacles_detect import obstacles_detect
+from tools.finger_count import FingersCount
+from tools.tracker import Tracker
 iou_threshold = 0.1
 
 
@@ -48,7 +48,7 @@ def run(yolo, classifier):
                 print(object_to_find)
                 continue
             print("finding")
-            bbox, confidence = yolo.find_object(color_frame)
+            bbox, confidence = yolo.find_object(color_frame, visualize=True)
             print(bbox)
             if bbox:
                 object_mask, depth = segment_object(depth_frame, bbox)

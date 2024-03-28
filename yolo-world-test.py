@@ -36,6 +36,7 @@ def main():
             break
         # predict the image without verbose
         results = model(img, verbose=False)
+        print(results[0])
         print("=====")
         print(results[0].boxes)
         print("=====")

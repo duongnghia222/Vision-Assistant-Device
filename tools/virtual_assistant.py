@@ -23,11 +23,17 @@ def remove_stopwords(text):
     return filtered_text
 
 
-class TextToSpeech:
-    def __init__(self, rate=150, volume=0.9):
+class VirtualAssistant:
+    def __init__(self, recognizer_model_path, rate=150, volume=0.9):
+        self.recognizer_model_path = recognizer_model_path
+        self.audio = pyaudio.PyAudio()
+        self.recognizer = KaldiRecognizer(Model(self.recognizer_model_path), 16000)
+
+        # VA Voice
         self.engine = pyttsx3.init()
         self.engine.setProperty('rate', rate)
         self.engine.setProperty('volume', volume)
+        download_nltk_resources()
 
     def speak(self, text):
         try:
@@ -36,19 +42,10 @@ class TextToSpeech:
         except Exception as e:
             print(f"An error occurred during speech: {e}")
 
-
-class VirtualAssistant:
-    def __init__(self, recognizer_model_path):
-        self.recognizer_model_path = recognizer_model_path
-        self.audio = pyaudio.PyAudio()
-        self.recognizer = KaldiRecognizer(Model(self.recognizer_model_path), 16000)
-        self.voice = TextToSpeech()
-        download_nltk_resources()
-
     def recognize_command(self, command_prompt="None", confirm_command="None"):
         command = None
         previous_text = None
-        self.voice.speak(command_prompt)
+        self.speak(command_prompt)
         stream = self.audio.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=2048)
         stream.start_stream()
         while not command:
@@ -65,7 +62,7 @@ class VirtualAssistant:
                 if text:
                     if text in ["ok", "k", "okay"]:
                         if not command or not previous_text:
-                            # self.voice.speak("Please provide a command first")
+                            # self.speak("Please provide a command first")
                             print("Please provide a command first")
                         else:
                             command = previous_text
@@ -74,10 +71,10 @@ class VirtualAssistant:
                         break
                     else:
                         previous_text = text
-                        # self.voice.speak(f"You want to {confirm_command} {text}! Say 'ok' to confirm")
+                        # self.speak(f"You want to {confirm_command} {text}! Say 'ok' to confirm")
                         print(f"You want to {confirm_command} {text}! Say 'ok' to confirm")
                 else:
-                    # self.voice.speak("Say it again")
+                    # self.speak("Say it again")
                     print("Say it again")
 
         stream.stop_stream()
