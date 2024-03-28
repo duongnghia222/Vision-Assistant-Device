@@ -41,3 +41,38 @@ import numpy as np
 #         break
 
 
+import nltk
+import os
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
+def download_nltk_resources():
+    nltk.data.path.append("./nltk_data")
+    if not os.path.exists("./nltk_data/corpora/stopwords"):
+        nltk.download('stopwords', download_dir="./nltk_data")
+    if not os.path.exists("./nltk_data/tokenizers/punkt"):
+        nltk.download('punkt', download_dir="./nltk_data")
+
+def remove_stopwords(text):
+    words = word_tokenize(text)
+    stop_words = set(stopwords.words('english'))
+    filtered_words = [word for word in words if word.lower() not in stop_words]
+    filtered_text = ' '.join(filtered_words)
+    return filtered_text
+
+# Example text
+text = "ok okay k"
+
+# Download NLTK resources
+download_nltk_resources()
+
+# Remove stopwords from the example text
+filtered_text = remove_stopwords(text)
+
+# Print the filtered text
+print("Original Text:", text)
+print("Filtered Text:", filtered_text)
+
+
+
+
