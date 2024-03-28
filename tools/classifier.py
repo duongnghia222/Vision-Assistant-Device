@@ -7,10 +7,10 @@ import cv2
 
 class Classifier:
     # Initialize the classifier
-    def __init__(self, model_path, visual=False):
+    def __init__(self, model_path, visualize=False):
         self.classifier = ResNetForImageClassification.from_pretrained(model_path)
         self.image_processor = AutoImageProcessor.from_pretrained(model_path)
-        self.visual = visual
+        self.visual = visualize
 
     def process_image(self, frame):
         if self.visual:

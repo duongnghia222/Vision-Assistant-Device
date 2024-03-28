@@ -6,12 +6,14 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import os
 
+
 def download_nltk_resources():
     nltk.data.path.append("./../nltk_data")
     if not os.path.exists("./../nltk_data/corpora/stopwords"):
         nltk.download('stopwords', download_dir="./../nltk_data")
     if not os.path.exists("./../nltk_data/tokenizers/punkt"):
         nltk.download('punkt', download_dir="./nltk_data")
+
 
 def remove_stopwords(text):
     words = word_tokenize(text)
@@ -35,15 +37,13 @@ class TextToSpeech:
             print(f"An error occurred during speech: {e}")
 
 
-class CommandRecognizer:
-    def __init__(self, recognizer_model_path, voice):
+class VirtualAssistant:
+    def __init__(self, recognizer_model_path):
         self.recognizer_model_path = recognizer_model_path
         self.audio = pyaudio.PyAudio()
         self.recognizer = KaldiRecognizer(Model(self.recognizer_model_path), 16000)
-        self.voice = voice
-
-    def __del__(self):
-        self.audio.terminate()
+        self.voice = TextToSpeech()
+        download_nltk_resources()
 
     def recognize_command(self, command_prompt="None", confirm_command="None"):
         command = None
@@ -64,16 +64,18 @@ class CommandRecognizer:
                 print(text)
                 if text:
                     if text in ["ok", "k", "okay"]:
-                        if not previous_text:
+                        if not command or not previous_text:
                             # self.voice.speak("Please provide a command first")
                             print("Please provide a command first")
                         else:
                             command = previous_text
-                    elif text in ["exit", "quit", "stop"]:
+                            break
+                    elif text in ["exit", "quit", "stop", "cancel"]:
                         break
                     else:
                         previous_text = text
                         # self.voice.speak(f"You want to {confirm_command} {text}! Say 'ok' to confirm")
+                        print(f"You want to {confirm_command} {text}! Say 'ok' to confirm")
                 else:
                     # self.voice.speak("Say it again")
                     print("Say it again")

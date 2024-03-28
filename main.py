@@ -6,15 +6,13 @@ import cv2
 import sys
 import pyaudio
 import os.path as osp
-from ultralytics import YOLOWorld
-import supervision as sv
+from tools.yolo_world import YoloWorld
 from tools.classifier import Classifier
 from tools.finger_count import FingersCount
 from tools.tracker import Tracker
 from tools.instruction import navigate_to_object, inform_object_location
-from tools.voice_navigator import TextToSpeech, CommandRecognizer
-voice = TextToSpeech()
-command_recognizer = CommandRecognizer("tools/vosk-model-en-us-0.22-lgraph", voice)
+from tools.virtual_assistant import VirtualAssistant
+virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph")
 from tools.FPS import FPS
 from tools.realsense_camera import *
 from tools.custom_segmentation import segment_object
@@ -22,15 +20,12 @@ from tools.obstacles_detect import obstacles_detect
 iou_threshold = 0.1
 
 
-def run(yolo, classifier, voice):
+def run(yolo, classifier):
     rs_camera = RealsenseCamera(width=640, height=480)  # This is max allowed
     print("Starting RealSense camera. Press 'q' to quit.")
     mode = 'BGF'  # For debug, change to disabled after that
-    detection = None
-    object_to_find = None
-
-    bbox_annotator = sv.BoundingBoxAnnotator()
-    label_annotator = sv.LabelAnnotator()
+    object_to_find = "bottle"
+    yolo.set_object_to_find([object_to_find])
     fps = FPS(nsamples=50)
 
     while True:
@@ -47,34 +42,22 @@ def run(yolo, classifier, voice):
         # Implement the functionalities for each mode
         if mode == 'BGF':
             if not object_to_find:
-                object_to_find = command_recognizer.recognize_command("What do you want to find?", "find")
-                yolo.set_classes([object_to_find])
-
-            results = yolo.predict(color_frame, verbose=False)
-            detections = sv.Detections.from_ultralytics(results[0]).with_nms(threshold=iou_threshold)
-            if detections:
-                detection = detections[0]
-                color_frame = bbox_annotator.annotate(
-                    scene=color_frame.copy(),
-                    detections=detection
-                )
-                color_frame = label_annotator.annotate(
-                    scene=color_frame,
-                    detections=detection,
-                    labels=[
-                        f"{object_to_find} {confidence:0.3f}"
-                        for class_id, confidence
-                        in zip(detection.class_id, detection.confidence)
-                    ]
-                )
-                xmin, ymin, xmax, ymax = map(int, detection.xyxy[0])
-                object_mask, depth = segment_object(depth_frame, [xmin, ymin, xmax, ymax])
-                instruction, degree = navigate_to_object([xmin, ymin, xmax, ymax], depth, 50, color_frame, voice=None, visual=True)
+                object_to_find = virtual_assistant.recognize_command("What do you want to find?", "find")
+                if object_to_find:
+                    yolo.set_object_to_find([object_to_find])
+                print(object_to_find)
+                continue
+            print("finding")
+            bbox, confidence = yolo.find_object(color_frame)
+            print(bbox)
+            if bbox:
+                object_mask, depth = segment_object(depth_frame, bbox)
+                instruction, degree = navigate_to_object(bbox, depth, 50, color_frame, voice=None, visualize=True)
                 print(instruction, degree)
 
         if mode == "SSG":
             obstacles = obstacles_detect(depth_frame, [0, 0, screen_height, screen_width], 1000, 15000)
-            direction, size = inform_object_location(obstacles, classifier, voice=None, color_frame=color_frame, visual=True, use_classifier=True)
+            direction, size = inform_object_location(obstacles, classifier, voice=None, color_frame=color_frame, visualize=True, use_classifier=True)
             print(direction, size)
             print(frame_number)
 
@@ -99,10 +82,10 @@ if __name__ == "__main__":
     DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(DEVICE)
     screen_width, screen_height = [720, 1280]
-    yolo = YOLOWorld('yolov8m-world.pt')
-    classifier = Classifier(model_path="models/resnet-50", visual=False)
+    yolo = YoloWorld('yolov8m-world.pt')
+    classifier = Classifier(model_path="models/resnet-50", visualize=False)
     # voice.speak("Please wait for system to start")
-    run(yolo, classifier, voice)
+    run(yolo, classifier)
 
 
 

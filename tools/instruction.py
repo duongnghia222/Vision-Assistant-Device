@@ -2,7 +2,7 @@
 import cv2
 
 
-def inform_object_location(obstacles, classifier, voice, color_frame, visual=False, use_classifier=True):
+def inform_object_location(obstacles, classifier, voice, color_frame, visualize=False, use_classifier=True):
     # If there is no obstacle detected return None
     direction = None
     size = None
@@ -52,14 +52,14 @@ def inform_object_location(obstacles, classifier, voice, color_frame, visual=Fal
         voice.speak(f"{size} obstacle {distance// 100} meters away")
 
     # draw obstacles on depth frame
-    if visual:
+    if visualize:
         for obstacle in obstacles:
             cv2.rectangle(color_frame, (obstacle['coordinates'][0], obstacle['coordinates'][1]),
                           (obstacle['coordinates'][2], obstacle['coordinates'][3]), (0, 0, 255), 2)
     return direction, size
 
 
-def navigate_to_object(bbox, depth, min_dis, color_frame, voice, visual=False):
+def navigate_to_object(bbox, depth, min_dis, color_frame, voice, visualize=False):
     """
     Navigates the blind user towards the object using audio instructions based on bounding box and depth information.
 
@@ -87,7 +87,7 @@ def navigate_to_object(bbox, depth, min_dis, color_frame, voice, visual=False):
 
     left_bound = int(max(min(middle_x - middle_diff, color_frame.shape[1]), 0))
     right_bound = int(max(min(middle_x + middle_diff, color_frame.shape[1]), 0))
-    if visual:
+    if visualize:
         cv2.line(color_frame, (left_bound, 0), (left_bound, color_frame.shape[0]), (0, 255, 0), 2)  # Left line
         cv2.line(color_frame, (right_bound, 0), (right_bound, color_frame.shape[0]), (0, 255, 0), 2)  # Right line
 
