@@ -37,11 +37,16 @@ def run():
     min_distance = settings.get('min_distance', 50)
     distance_threshold = settings.get('distance_threshold', 1000)
     size_threshold = settings.get('size_threshold', 15000)
+    covering_duration_threshold = settings.get('covering_duration_threshold', 2)
 
     yolo.set_object_to_find([object_to_find])  # Delete after debug
     virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph",
                                          words_per_minute=assistant_words_per_minute, volume=assistant_volume)
     fps = FPS(nsamples=fps_n_samples)
+
+    # Runtime variable
+    covering_detected = False
+    covering_start_time = None
 
     while True:
         t1 = time.time()
@@ -51,7 +56,7 @@ def run():
             break
 
         # Only change gestures if the current mode is disabled or a mode exit gesture is detected
-        if mode == 'disabled':
+        if mode == 'Disabled':
             pass
 
         # Implement the functionalities for each mode
@@ -85,13 +90,22 @@ def run():
             print(direction, size, distance, obstacle_class, prob)
 
         if mode == "Assistant":
-            command = virtual_assistant.hey_virtual_assistant()
-            print(command)
+            # command = virtual_assistant.hey_virtual_assistant()
+            # print(command)
+            print("Assistant mode")
+
 
         # Check for mode change
         if rs_camera.detect_covering(color_frame, depth_frame, visualize=True):
-            print("Covering detected")
-            mode = 'disabled'
+            if not covering_detected:
+                covering_start_time = time.time()
+                covering_detected = True
+            else:
+                covering_duration = time.time() - covering_start_time
+                if covering_duration >= covering_duration_threshold:  # 2 seconds threshold
+                    mode = 'Assistant'
+        else:
+            covering_detected = False
         # FPS counter
         t2 = time.time()
         fps.update(1.0 / (t2 - t1))

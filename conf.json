@@ -14,5 +14,6 @@
   "assistant_volume": 0.5,
   "min_distance": 50,
   "distance_threshold": 1000,
-  "size_threshold": 15000
+  "size_threshold": 15000,
+  "covering_duration_threshold": 2
 }
