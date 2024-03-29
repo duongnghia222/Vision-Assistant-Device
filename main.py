@@ -9,7 +9,7 @@ import pyaudio
 import os.path as osp
 from tools.yolo_world import YoloWorld
 from tools.classifier import Classifier
-from tools.instruction import navigate_to_object, inform_object_location
+from tools.instruction import get_object_info, get_obstacle_info
 from tools.virtual_assistant import VirtualAssistant
 from tools.FPS import FPS
 from tools.realsense_camera import *
@@ -17,6 +17,7 @@ from tools.custom_segmentation import segment_object
 from tools.obstacles_detect import obstacles_detect
 from tools.finger_count import FingersCount
 from tools.tracker import Tracker
+
 iou_threshold = 0.1
 
 
@@ -57,16 +58,20 @@ def run():
             print(bbox)
             if bbox:
                 object_mask, depth = segment_object(depth_frame, bbox)
-                instruction, degree = navigate_to_object(bbox, depth, 50, color_frame, voice=None, visualize=is_visualize)
-                print(instruction, degree)
+                instruction, rotation_degrees, distance = get_object_info(bbox, depth, 50, color_frame, is_visualize)
+                # virtual_assistant.navigate_to_object(instruction, rotation_degrees, distance)
+                print(instruction, rotation_degrees, distance)
 
         if mode == "SSG":
             obstacles = obstacles_detect(depth_frame, [0, 0, screen_height, screen_width], 1000, 15000)
-            direction, size = inform_object_location(obstacles, classifier, voice=None, color_frame=color_frame, visualize=is_visualize, use_classifier=True)
-            print(direction, size)
-            print(frame_number)
+            direction, size, distance, obstacle_class, prob = get_obstacle_info(obstacles, classifier,
+                                                                                color_frame=color_frame,
+                                                                                visualize=is_visualize,
+                                                                                use_classifier=True)
+            # virtual_assistant.inform_object_location(direction, size, distance, obstacle_class, prob)
+            print(direction, size, distance, obstacle_class, prob)
 
-        # put text on the frame
+
         # FPS counter
         t2 = time.time()
         fps.update(1.0 / (t2 - t1))
@@ -103,15 +108,8 @@ def load_system():
     rs_camera = RealsenseCamera(width=screen_width, height=screen_height)
     return yolo, classifier, rs_camera, settings
 
+
 if __name__ == "__main__":
     # voice.speak("Please wait for system to start")
     yolo, classifier, rs_camera, settings = load_system()
     run()
-
-
-
-
-
-
-
-

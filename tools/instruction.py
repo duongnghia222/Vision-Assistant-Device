@@ -2,10 +2,11 @@
 import cv2
 
 
-def inform_object_location(obstacles, classifier, voice, color_frame, visualize=False, use_classifier=True):
+def get_obstacle_info(obstacles, classifier, color_frame, visualize=False, use_classifier=True):
     # If there is no obstacle detected return None
     direction = None
     size = None
+    obstacle_class, prob = None, None
     if len(obstacles) == 0:
         return direction, size
     # Sort obstacles based on distance
@@ -21,8 +22,6 @@ def inform_object_location(obstacles, classifier, voice, color_frame, visualize=
         obstacle_frame = color_frame[y1:y2, x1:x2]
         obstacle_class, prob = classifier.predict(obstacle_frame)
         print(obstacle_class, prob)
-        if voice:
-            voice.speak(f"Probably {obstacle_class} with confidence {int(prob)} percent")
     pixel_displacement = abs(color_frame.shape[1] / 2 - obstacle_center_x)
     degrees_per_pixel = 69 / color_frame.shape[1]  # Horizontal field of view of the camera is 69 degrees
     degree = int(pixel_displacement * degrees_per_pixel)
@@ -48,18 +47,16 @@ def inform_object_location(obstacles, classifier, voice, color_frame, visualize=
         size = "large"
     else:
         size = "very large"
-    if voice:
-        voice.speak(f"{size} obstacle {distance// 100} meters away")
 
     # draw obstacles on depth frame
     if visualize:
         for obstacle in obstacles:
             cv2.rectangle(color_frame, (obstacle['coordinates'][0], obstacle['coordinates'][1]),
                           (obstacle['coordinates'][2], obstacle['coordinates'][3]), (0, 0, 255), 2)
-    return direction, size
+    return direction, size, distance, obstacle_class, prob
 
 
-def navigate_to_object(bbox, depth, min_dis, color_frame, voice, visualize=False):
+def get_object_info(bbox, distance, min_dis, color_frame, visualize=False):
     """
     Navigates the blind user towards the object using audio instructions based on bounding box and depth information.
 
@@ -73,14 +70,14 @@ def navigate_to_object(bbox, depth, min_dis, color_frame, voice, visualize=False
     xmin, ymin, xmax, ymax = bbox
     box_center_x = int((xmin + xmax) / 2)
 
-    print('depth', depth)
+    print('depth', distance)
     # Adjust threshold based on depth
     middle_x = color_frame.shape[1] // 2
-    if depth > 1000:
+    if distance > 1000:
         middle_diff = 70
-    elif depth < 1000:
+    elif distance < 1000:
         middle_diff = 100
-    elif 500 < depth < 1000:
+    elif 500 < distance < 1000:
         middle_diff = 150
     else:
         middle_diff = 200
@@ -100,7 +97,7 @@ def navigate_to_object(bbox, depth, min_dis, color_frame, voice, visualize=False
         direction = "move forward"
 
     # Incorporate depth information for distance
-    if depth < min_dis:
+    if distance < min_dis:
         instruction = "stop"
     else:
         instruction = f"{direction}"
@@ -113,11 +110,5 @@ def navigate_to_object(bbox, depth, min_dis, color_frame, voice, visualize=False
 
     # Calculate the number of degrees of rotation required
     rotation_degrees = int(pixel_displacement * degrees_per_pixel)
-    if voice:
-        if instruction == "stop":
-            voice.speak(instruction)
-        elif direction == "move forward":
-            voice.speak(instruction + " " + str(int(depth / 100)) + " meters away")
-        else:
-            voice.speak(instruction + " " + str(rotation_degrees) + " degrees")
-    return instruction, rotation_degrees
+
+    return instruction, rotation_degrees, distance

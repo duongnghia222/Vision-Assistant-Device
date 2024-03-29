@@ -87,7 +87,6 @@ class VirtualAssistant:
         self.engine.runAndWait()
         print("Virtual Assistant closed")
 
-
     def hey_virtual_assistant(self):
         self.speak("Hello, I am your virtual assistant. How can I help you today?")
         command = self.recognize_command("What do you want to do?", "do")
@@ -99,3 +98,15 @@ class VirtualAssistant:
             self.close()
         return command
 
+    def navigate_to_object(self, instruction, rotation_degrees, distance):
+        if instruction == "stop":
+            self.speak(instruction)
+        elif instruction == "move forward":
+            self.speak(instruction + " " + str(int(distance / 100)) + " meters away")
+        else:
+            self.speak(instruction + " " + str(rotation_degrees) + " degrees")
+
+    def inform_object_location(self, direction, size, distance, obstacle_class, prob):
+        if obstacle_class and prob:
+            self.speak(f"Probably {obstacle_class} with confidence {int(prob)} percent")
+        self.speak(f"{size} obstacle {distance // 100} meters away on your {direction}")
