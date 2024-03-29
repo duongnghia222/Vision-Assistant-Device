@@ -6,8 +6,8 @@ class YoloWorld:
         self.yolo_world = YOLOWorld(model_path)
         self.iou_threshold = 0.1
 
-    def find_object(self, color_frame, visualize=False):
-        results = self.yolo_world.predict(color_frame, verbose=False)[0]
+    def find_object(self, color_frame, conf, iou, max_det, visualize=False):
+        results = self.yolo_world.predict(color_frame, conf=conf, iou=iou, max_det=max_det, verbose=False)[0]
         # Get the most confident detection
         if len(results.boxes.xyxy.cpu().tolist()) == 0:
             return None, 0

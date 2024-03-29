@@ -24,14 +24,14 @@ def remove_stopwords(text):
 
 
 class VirtualAssistant:
-    def __init__(self, recognizer_model_path, rate=150, volume=0.9):
+    def __init__(self, recognizer_model_path, words_per_minute=150, volume=0.9):
         self.recognizer_model_path = recognizer_model_path
         self.audio = pyaudio.PyAudio()
         self.recognizer = KaldiRecognizer(Model(self.recognizer_model_path), 16000)
 
         # VA Voice
         self.engine = pyttsx3.init()
-        self.engine.setProperty('rate', rate)
+        self.engine.setProperty('rate', words_per_minute)
         self.engine.setProperty('volume', volume)
         download_nltk_resources()
 

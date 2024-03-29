@@ -36,6 +36,7 @@ while True:
 
     # Convert images to numpy arrays
     depth_image = np.asanyarray(depth_frame.get_data())
+
     color_image = np.asanyarray(color_frame.get_data())
 
     # Resize depth image to match the FOV of the color image

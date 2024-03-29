@@ -72,16 +72,68 @@ import numpy as np
 # # Print the filtered text
 # print("Original Text:", text)
 # print("Filtered Text:", filtered_text)
+#
+# from ultralytics import YOLO
+#
+# # Load a model
+# model = YOLO('yolov8x-cls.pt')  # load an official model
+#
+# # Predict with the model
+# results = model('pictures/1.png', conf=0.1)  # predict on an image
+# for result in results:
+#     print(result)
 
-from ultralytics import YOLO
 
-# Load a model
-model = YOLO('yolov8x-cls.pt')  # load an official model
+import numpy as np
+import cv2
 
-# Predict with the model
-results = model('pictures/1.png', conf=0.1)  # predict on an image
-for result in results:
-    print(result)
+def detect_covering(color_frame, depth_frame, visualize=False):
+    # Extract ROI
+    middle_x = 1280 // 2
+    middle_y = 720 // 2
+    square_size = middle_x // 2
+    roi_depth_frame = depth_frame[middle_y - square_size:middle_y + square_size,
+                      middle_x - square_size:middle_x + square_size]
+
+    covered_pixels = np.count_nonzero(roi_depth_frame < 30)
+    # print(roi_depth_frame < 100)
+
+    # Calculate the total number of pixels in the ROI
+    total_pixels = roi_depth_frame.size
+    # Calculate the percentage of covered pixels
+    coverage_percentage = covered_pixels / total_pixels
+    print(coverage_percentage)
+    # Check if the coverage percentage exceeds the threshold
+    if visualize:
+        cv2.rectangle(color_frame, (middle_x - square_size, middle_y - square_size),
+                      (middle_x + square_size, middle_y + square_size), (0, 0, 0), 2)
+    if coverage_percentage > 0.9:
+        return True
+    else:
+        return False
+
+# Assuming you have already initialized the RealSenseCamera instance
+rs_camera = RealsenseCamera(width=1280, height=720)
+
+# Main loop
+while True:
+    ret, color_frame, depth_frame, frame_number = rs_camera.get_frame_stream()
+    if ret:
+        # Detect covering
+        if detect_covering(color_frame, depth_frame, visualize=True):
+            print("Something is covering your camera lens!")
+
+        # Display frames (optional)
+        cv2.imshow("Color Frame", color_frame)
+        cv2.imshow("Depth Frame", depth_frame)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+# Release the camera
+rs_camera.release()
+cv2.destroyAllWindows()
+
 
 
 

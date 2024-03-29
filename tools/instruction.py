@@ -84,9 +84,6 @@ def get_object_info(bbox, distance, min_dis, color_frame, visualize=False):
 
     left_bound = int(max(min(middle_x - middle_diff, color_frame.shape[1]), 0))
     right_bound = int(max(min(middle_x + middle_diff, color_frame.shape[1]), 0))
-    if visualize:
-        cv2.line(color_frame, (left_bound, 0), (left_bound, color_frame.shape[0]), (0, 255, 0), 2)  # Left line
-        cv2.line(color_frame, (right_bound, 0), (right_bound, color_frame.shape[0]), (0, 255, 0), 2)  # Right line
 
     # Determine the direction to move
     if box_center_x < middle_x - middle_diff:
@@ -111,4 +108,7 @@ def get_object_info(bbox, distance, min_dis, color_frame, visualize=False):
     # Calculate the number of degrees of rotation required
     rotation_degrees = int(pixel_displacement * degrees_per_pixel)
 
+    if visualize:
+        cv2.line(color_frame, (left_bound, 0), (left_bound, color_frame.shape[0]), (0, 255, 0), 2)  # Left line
+        cv2.line(color_frame, (right_bound, 0), (right_bound, color_frame.shape[0]), (0, 255, 0), 2)  # Right line
     return instruction, rotation_degrees, distance
