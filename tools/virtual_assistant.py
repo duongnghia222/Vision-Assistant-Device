@@ -81,3 +81,21 @@ class VirtualAssistant:
         stream.close()
         return command
 
+    def close(self):
+        self.audio.terminate()
+        self.engine.stop()
+        self.engine.runAndWait()
+        print("Virtual Assistant closed")
+
+
+    def hey_virtual_assistant(self):
+        self.speak("Hello, I am your virtual assistant. How can I help you today?")
+        command = self.recognize_command("What do you want to do?", "do")
+        print(command)
+        if command:
+            self.speak(f"Ok, I will {command} for you")
+        else:
+            self.speak("Goodbye")
+            self.close()
+        return command
+

@@ -3,6 +3,7 @@ import torch
 import os
 import time
 import cv2
+import json
 import sys
 import pyaudio
 import os.path as osp
@@ -10,7 +11,6 @@ from tools.yolo_world import YoloWorld
 from tools.classifier import Classifier
 from tools.instruction import navigate_to_object, inform_object_location
 from tools.virtual_assistant import VirtualAssistant
-virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph")
 from tools.FPS import FPS
 from tools.realsense_camera import *
 from tools.custom_segmentation import segment_object
@@ -20,13 +20,18 @@ from tools.tracker import Tracker
 iou_threshold = 0.1
 
 
-def run(yolo, classifier):
-    rs_camera = RealsenseCamera(width=640, height=480)  # This is max allowed
-    print("Starting RealSense camera. Press 'q' to quit.")
-    mode = 'BGF'  # For debug, change to disabled after that
-    object_to_find = "bottle"
-    yolo.set_object_to_find([object_to_find])
-    fps = FPS(nsamples=50)
+def run():
+    # Load settings
+    mode = settings.get('mode', 'BGF')  # For debug, change to disabled after that
+    object_to_find = settings.get('object_to_find', None)
+    screen_width = settings.get('screen_width', 640)
+    screen_height = settings.get('screen_height', 480)
+    fps_n_samples = settings.get('fps_n_samples', 50)
+    is_visualize = settings.get('is_visualize', False)
+
+    yolo.set_object_to_find([object_to_find])  # Delete after debug
+    virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph")
+    fps = FPS(nsamples=fps_n_samples)
 
     while True:
         t1 = time.time()
@@ -48,16 +53,16 @@ def run(yolo, classifier):
                 print(object_to_find)
                 continue
             print("finding")
-            bbox, confidence = yolo.find_object(color_frame, visualize=True)
+            bbox, confidence = yolo.find_object(color_frame, visualize=is_visualize)
             print(bbox)
             if bbox:
                 object_mask, depth = segment_object(depth_frame, bbox)
-                instruction, degree = navigate_to_object(bbox, depth, 50, color_frame, voice=None, visualize=True)
+                instruction, degree = navigate_to_object(bbox, depth, 50, color_frame, voice=None, visualize=is_visualize)
                 print(instruction, degree)
 
         if mode == "SSG":
             obstacles = obstacles_detect(depth_frame, [0, 0, screen_height, screen_width], 1000, 15000)
-            direction, size = inform_object_location(obstacles, classifier, voice=None, color_frame=color_frame, visualize=True, use_classifier=True)
+            direction, size = inform_object_location(obstacles, classifier, voice=None, color_frame=color_frame, visualize=is_visualize, use_classifier=True)
             print(direction, size)
             print(frame_number)
 
@@ -75,17 +80,33 @@ def run(yolo, classifier):
     rs_camera.release()
     cv2.destroyAllWindows()
     fps.reset()
+    virtual_assistant.close()
 
 
+def load_settings(file_path):
+    with open(file_path, 'r') as file:
+        s = json.load(file)
+    return s
+
+
+def load_system():
+    settings = load_settings('conf.json')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(device)
+    yolo_world_path = settings.get('yolo_world_path', 'yolov8m-world.pt')
+    classifier_path = settings.get('classifier_path', 'models/resnet-50')
+    is_visualize = settings.get('visualize', False)
+    screen_width = settings.get('screen_width', 640)
+    screen_height = settings.get('screen_height', 480)
+    yolo = YoloWorld(yolo_world_path)
+    classifier = Classifier(model_path=classifier_path, visualize=is_visualize)
+    rs_camera = RealsenseCamera(width=screen_width, height=screen_height)
+    return yolo, classifier, rs_camera, settings
 
 if __name__ == "__main__":
-    DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(DEVICE)
-    screen_width, screen_height = [720, 1280]
-    yolo = YoloWorld('yolov8m-world.pt')
-    classifier = Classifier(model_path="models/resnet-50", visualize=False)
     # voice.speak("Please wait for system to start")
-    run(yolo, classifier)
+    yolo, classifier, rs_camera, settings = load_system()
+    run()
 
 
 

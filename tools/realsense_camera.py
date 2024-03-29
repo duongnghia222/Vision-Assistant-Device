@@ -6,7 +6,7 @@ import numpy as np
 class RealsenseCamera:
     def __init__(self, width=640, height=480):
         # Configure depth and color streams
-        print("Loading Intel Realsense Camera")
+        print("Starting RealSense camera. Press 'q' to quit.")
         self.pipeline = rs.pipeline()
         config = rs.config()
 
