@@ -56,14 +56,13 @@ def run():
             break
 
         # Only change gestures if the current mode is disabled or a mode exit gesture is detected
-        if mode == 'Disabled':
+        if mode == 'disabled':
             pass
 
         # Implement the functionalities for each mode
-        if mode == 'BGF':
+        if mode == 'finding':
             if not object_to_find:
-                object_to_find = virtual_assistant.recognize_command(command_prompt="What do you want to find?",
-                                                                     confirm_command="find")
+                object_to_find = virtual_assistant.receive_object()
                 if object_to_find:
                     yolo.set_object_to_find([object_to_find])
                 print(object_to_find)
@@ -79,7 +78,7 @@ def run():
                 # virtual_assistant.navigate_to_object(instruction, rotation_degrees, distance)
                 print(instruction, rotation_degrees, distance)
 
-        if mode == "SSG":
+        if mode == "walking":
             obstacles = obstacles_detect(depth_frame, [0, 0, screen_height, screen_width], distance_threshold,
                                          size_threshold)
             direction, size, distance, obstacle_class, prob = get_obstacle_info(obstacles, classifier,
@@ -89,10 +88,12 @@ def run():
             # virtual_assistant.inform_object_location(direction, size, distance, obstacle_class, prob)
             print(direction, size, distance, obstacle_class, prob)
 
-        if mode == "Assistant":
+        if mode == "assistant":
             # command = virtual_assistant.hey_virtual_assistant()
             # print(command)
+            mode = virtual_assistant.hey_virtual_assistant()
             print("Assistant mode")
+            continue
 
 
         # Check for mode change
@@ -103,7 +104,7 @@ def run():
             else:
                 covering_duration = time.time() - covering_start_time
                 if covering_duration >= covering_duration_threshold:  # 2 seconds threshold
-                    mode = 'Assistant'
+                    mode = 'assistant'
         else:
             covering_detected = False
         # FPS counter

@@ -84,56 +84,82 @@ import numpy as np
 #     print(result)
 
 
-import numpy as np
-import cv2
+# import numpy as np
+# import cv2
+#
+# def detect_covering(color_frame, depth_frame, visualize=False):
+#     # Extract ROI
+#     middle_x = 1280 // 2
+#     middle_y = 720 // 2
+#     square_size = middle_x // 2
+#     roi_depth_frame = depth_frame[middle_y - square_size:middle_y + square_size,
+#                       middle_x - square_size:middle_x + square_size]
+#
+#     covered_pixels = np.count_nonzero(roi_depth_frame < 30)
+#     # print(roi_depth_frame < 100)
+#
+#     # Calculate the total number of pixels in the ROI
+#     total_pixels = roi_depth_frame.size
+#     # Calculate the percentage of covered pixels
+#     coverage_percentage = covered_pixels / total_pixels
+#     print(coverage_percentage)
+#     # Check if the coverage percentage exceeds the threshold
+#     if visualize:
+#         cv2.rectangle(color_frame, (middle_x - square_size, middle_y - square_size),
+#                       (middle_x + square_size, middle_y + square_size), (0, 0, 0), 2)
+#     if coverage_percentage > 0.9:
+#         return True
+#     else:
+#         return False
+#
+# # Assuming you have already initialized the RealSenseCamera instance
+# rs_camera = RealsenseCamera(width=1280, height=720)
+#
+# # Main loop
+# while True:
+#     ret, color_frame, depth_frame, frame_number = rs_camera.get_frame_stream()
+#     if ret:
+#         # Detect covering
+#         if detect_covering(color_frame, depth_frame, visualize=True):
+#             print("Something is covering your camera lens!")
+#
+#         # Display frames (optional)
+#         cv2.imshow("Color Frame", color_frame)
+#         cv2.imshow("Depth Frame", depth_frame)
+#
+#         if cv2.waitKey(1) & 0xFF == ord('q'):
+#             break
+#
+# # Release the camera
+# rs_camera.release()
+# cv2.destroyAllWindows()
 
-def detect_covering(color_frame, depth_frame, visualize=False):
-    # Extract ROI
-    middle_x = 1280 // 2
-    middle_y = 720 // 2
-    square_size = middle_x // 2
-    roi_depth_frame = depth_frame[middle_y - square_size:middle_y + square_size,
-                      middle_x - square_size:middle_x + square_size]
+# from math import pow
+#
+# def calculate_series(max_terms):
+#     series_sum = 0
+#     for n in range(3, max_terms + 1):
+#         term = n * pow(2/3, n-3) * (1/27)
+#         series_sum += term
+#     return series_sum
+#
+# # Example usage
+# max_terms = 200  # Calculate the sum up to 20 terms
+# result = calculate_series(max_terms)
+# print(f"The sum of the series up to {max_terms} terms is: {result:.6f}")
 
-    covered_pixels = np.count_nonzero(roi_depth_frame < 30)
-    # print(roi_depth_frame < 100)
+from thefuzz import process
+from thefuzz import fuzz
 
-    # Calculate the total number of pixels in the ROI
-    total_pixels = roi_depth_frame.size
-    # Calculate the percentage of covered pixels
-    coverage_percentage = covered_pixels / total_pixels
-    print(coverage_percentage)
-    # Check if the coverage percentage exceeds the threshold
-    if visualize:
-        cv2.rectangle(color_frame, (middle_x - square_size, middle_y - square_size),
-                      (middle_x + square_size, middle_y + square_size), (0, 0, 0), 2)
-    if coverage_percentage > 0.9:
-        return True
-    else:
-        return False
+# Define the two strings
+string1 = "change finding mode to finding"
+string2 = "chain moat to fighting"
+string3 = "change mode to walking"
 
-# Assuming you have already initialized the RealSenseCamera instance
-rs_camera = RealsenseCamera(width=1280, height=720)
+# Calculate the similarity score using token sort ratio
+similarity_score = fuzz.partial_token_sort_ratio(string1, string2)
+similarity_score2 = fuzz.partial_token_sort_ratio(string1, string3)
 
-# Main loop
-while True:
-    ret, color_frame, depth_frame, frame_number = rs_camera.get_frame_stream()
-    if ret:
-        # Detect covering
-        if detect_covering(color_frame, depth_frame, visualize=True):
-            print("Something is covering your camera lens!")
-
-        # Display frames (optional)
-        cv2.imshow("Color Frame", color_frame)
-        cv2.imshow("Depth Frame", depth_frame)
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-# Release the camera
-rs_camera.release()
-cv2.destroyAllWindows()
-
-
-
-
+# Print the similarity score
+print("Similarity Score:", similarity_score)
+print("Similarity Score2:", similarity_score2)
