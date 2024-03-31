@@ -6,6 +6,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import os
 from thefuzz import process
+import datetime
 
 
 def download_nltk_resources():
@@ -101,7 +102,7 @@ class VirtualAssistant:
                 text = ' '.join(dict.fromkeys(text.split()))
                 if text:
                     if text in ["ok", "k", "okay"]:
-                        if not command or not previous_text:
+                        if not previous_text:
                             # self.speak("Please provide a command first")
                             print("Please provide a command first")
                         else:
@@ -125,10 +126,22 @@ class VirtualAssistant:
         stream.close()
         return command
 
+    def get_time(self):
+        # get current time and date
+        current_time = datetime.datetime.now()
+        time_str = current_time.strftime("%I:%M %p")
+        self.speak(f"The current time is {time_str}.")
+
+
     def hey_virtual_assistant(self):
         self.speak("Hello, I am your virtual assistant. How can I help you today?")
         command = self.recognize_command()
-        print(command)
+        if command == "change mode to finding":
+            return "finding"
+        elif command == "change mode to walking":
+            return "walking"
+        elif command == "what time is it":
+            self.get_time()
         return "assistant"
 
     def navigate_to_object(self, instruction, rotation_degrees, distance):

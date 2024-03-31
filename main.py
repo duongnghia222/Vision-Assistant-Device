@@ -5,7 +5,6 @@ import time
 import cv2
 import json
 import sys
-import pyaudio
 import os.path as osp
 from tools.yolo_world import YoloWorld
 from tools.classifier import Classifier
@@ -92,6 +91,7 @@ def run():
             # command = virtual_assistant.hey_virtual_assistant()
             # print(command)
             mode = virtual_assistant.hey_virtual_assistant()
+            fps.reset()
             print("Assistant mode")
             continue
 
