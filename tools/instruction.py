@@ -8,7 +8,7 @@ def get_obstacle_info(obstacles, classifier, color_frame, visualize=False, use_c
     size = None
     obstacle_class, prob = None, None
     if len(obstacles) == 0:
-        return direction, size
+        return direction, size, None, None, None
     # Sort obstacles based on distance
     obstacles = sorted(obstacles, key=lambda x: x['distance'])
     obstacle = obstacles[0]
