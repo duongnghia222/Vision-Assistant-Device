@@ -14,10 +14,9 @@ from tools.FPS import FPS
 from tools.realsense_camera import *
 from tools.custom_segmentation import segment_object
 from tools.obstacles_detect import obstacles_detect
+from ultis.draw import display_text
 from tools.finger_count import FingersCount
 from tools.tracker import Tracker
-
-
 
 
 def run():
@@ -47,6 +46,10 @@ def run():
     covering_detected = False
     covering_start_time = None
 
+    # Timer variable
+    last_navigate_to_object_time = time.time()
+    last_inform_obstacle_location_time = time.time()
+
     while True:
         t1 = time.time()
         ret, color_frame, depth_frame, frame_number = rs_camera.get_frame_stream()
@@ -74,27 +77,49 @@ def run():
                 object_mask, depth = segment_object(depth_frame, bbox)
                 instruction, rotation_degrees, distance = get_object_info(bbox, depth, min_distance, color_frame,
                                                                           is_visualize)
-                # virtual_assistant.navigate_to_object(instruction, rotation_degrees, distance)
-                print(instruction, rotation_degrees, distance)
+
+                if time.time() - last_navigate_to_object_time >= 5:
+                    # Destroy cv2 window named 'RealSense Camera Detection':
+                    cv2.destroyWindow('RealSense Camera Detection')
+                    # display_text(f"{instruction}, {rotation_degrees}, {distance}", "Instruction text",
+                    # screen_width, screen_height)
+
+                    virtual_assistant.navigate_to_object(instruction, rotation_degrees, distance)
+                    # cv2.destroyWindow("Instruction text")
+                    last_navigate_to_object_time = time.time()
+                obstacles = obstacles_detect(depth_frame, [0, screen_width // 3, screen_height,
+                                                           screen_width - screen_width // 3], distance_threshold,
+                                             size_threshold, color_frame)
+                direction, size, distance, obstacle_class, prob = get_obstacle_info(obstacles, classifier,
+                                                                                    color_frame=color_frame,
+                                                                                    visualize=is_visualize,
+                                                                                    use_classifier=False)
+                print(direction, size, distance, obstacle_class, prob)
+                if direction and size and distance and time.time() - last_inform_obstacle_location_time >= 2:
+                    virtual_assistant.inform_obstacle_location(direction, size, obstacle_class, prob)
+                    last_inform_obstacle_location_time = time.time()
 
         if mode == "walking":
-            obstacles = obstacles_detect(depth_frame, [0, 0, screen_height, screen_width], distance_threshold,
-                                         size_threshold)
+            obstacles = obstacles_detect(depth_frame, [screen_width // 4, 0, screen_width - screen_width // 4,
+                                                       screen_height], distance_threshold,
+                                         size_threshold, color_frame)
             direction, size, distance, obstacle_class, prob = get_obstacle_info(obstacles, classifier,
                                                                                 color_frame=color_frame,
                                                                                 visualize=is_visualize,
-                                                                                use_classifier=True)
-            # virtual_assistant.inform_object_location(direction, size, distance, obstacle_class, prob)
+                                                                                use_classifier=False)
+            if direction and size and distance and time.time() - last_inform_obstacle_location_time >= 2:
+                virtual_assistant.inform_obstacle_location(direction, size, obstacle_class, prob)
+                last_inform_obstacle_location_time = time.time()
             print(direction, size, distance, obstacle_class, prob)
 
         if mode == "assistant":
             # command = virtual_assistant.hey_virtual_assistant()
             # print(command)
+            cv2.destroyWindow('RealSense Camera Detection')
             mode = virtual_assistant.hey_virtual_assistant()
             fps.reset()
             print("Assistant mode")
             continue
-
 
         # Check for mode change
         if rs_camera.detect_covering(color_frame, depth_frame, visualize=True):

@@ -4,11 +4,9 @@ import cv2
 
 def get_obstacle_info(obstacles, classifier, color_frame, visualize=False, use_classifier=True):
     # If there is no obstacle detected return None
-    direction = None
-    size = None
-    obstacle_class, prob = None, None
+    direction, size, distance, obstacle_class, prob = None, None, None, None, None
     if len(obstacles) == 0:
-        return direction, size, None, None, None
+        return direction, size, distance, obstacle_class, prob
     # Sort obstacles based on distance
     obstacles = sorted(obstacles, key=lambda x: x['distance'])
     obstacle = obstacles[0]
@@ -21,7 +19,6 @@ def get_obstacle_info(obstacles, classifier, color_frame, visualize=False, use_c
         # Classify the obstacle
         obstacle_frame = color_frame[y1:y2, x1:x2]
         obstacle_class, prob = classifier.predict(obstacle_frame)
-        print(obstacle_class, prob)
     pixel_displacement = abs(color_frame.shape[1] / 2 - obstacle_center_x)
     degrees_per_pixel = 69 / color_frame.shape[1]  # Horizontal field of view of the camera is 69 degrees
     degree = int(pixel_displacement * degrees_per_pixel)
@@ -69,8 +66,6 @@ def get_object_info(bbox, distance, min_dis, color_frame, visualize=False):
     """
     xmin, ymin, xmax, ymax = bbox
     box_center_x = int((xmin + xmax) / 2)
-
-    print('depth', distance)
     # Adjust threshold based on depth
     middle_x = color_frame.shape[1] // 2
     if distance > 1000:

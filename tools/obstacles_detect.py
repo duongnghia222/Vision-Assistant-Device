@@ -3,8 +3,10 @@ import numpy as np
 import json
 import time
 
-def obstacles_detect(depth_frame, roi, distance_threshold, size_threshold):
+def obstacles_detect(depth_frame, roi, distance_threshold, size_threshold, color_frame=None):
     xmin, ymin, xmax, ymax = roi
+    if color_frame is not None:
+        cv2.rectangle(color_frame, (xmin, ymin), (xmax, ymax), (233, 100, 255), 2)
     # extract roi from depth frame
     roi_depth_frame = depth_frame[ymin:ymax, xmin:xmax]
     obstacles = []

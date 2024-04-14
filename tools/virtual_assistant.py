@@ -132,6 +132,14 @@ class VirtualAssistant:
         time_str = current_time.strftime("%I:%M %p")
         self.speak(f"The current time is {time_str}.")
 
+    def take_note(self):
+        pass
+
+    def play_music(self):
+        pass
+
+    def change_setting(self):
+        pass
 
     def hey_virtual_assistant(self):
         self.speak("Hello, I am your virtual assistant. How can I help you today?")
@@ -148,14 +156,15 @@ class VirtualAssistant:
         if instruction == "stop":
             self.speak(instruction)
         elif instruction == "move forward":
-            self.speak(instruction + " " + str(int(distance / 100)) + " meters away")
+            self.speak(instruction + " " + str(round(distance / 1000, 1)) + " meters away")
         else:
-            self.speak(instruction + " " + str(rotation_degrees) + " degrees")
+            self.speak(instruction + " " + str(rotation_degrees) + " degrees" + ". Your object is " +
+                       str(round(distance / 1000, 1)) + " meters away")
 
-    def inform_object_location(self, direction, size, distance, obstacle_class, prob):
+    def inform_obstacle_location(self, direction, size, obstacle_class, prob):
         if obstacle_class and prob:
             self.speak(f"Probably {obstacle_class} with confidence {int(prob)} percent")
-        self.speak(f"{size} obstacle {distance // 100} meters away on your {direction}")
+        self.speak(f"{size} obstacle on {direction}")
 
     def close(self):
         self.audio.terminate()

@@ -56,7 +56,7 @@ class RealsenseCamera:
         # Visualization (optional)
         if visualize:
             cv2.rectangle(color_frame, (middle_x - square_size, middle_y - square_size),
-                          (middle_x + square_size, middle_y + square_size), (0, 255, 0), 2)
+                          (middle_x + square_size, middle_y + square_size), (0, 0, 0), 1)
 
         # Determine if covering is detected
         print(depth_percentage)
