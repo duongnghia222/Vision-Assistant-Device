@@ -5,7 +5,7 @@
   "classifier_path": "models/resnet-50",
   "is_visualize": true,
   "object_to_find": "bottle",
-  "mode": "walking",
+  "mode": "assistant",
   "fps_n_samples": 50,
   "iou_threshold": 0.1,
   "default_conf_threshold": 0.5,

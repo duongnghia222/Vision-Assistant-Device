@@ -38,7 +38,7 @@ def run():
     covering_duration_threshold = settings.get('covering_duration_threshold', 2)
 
     yolo.set_object_to_find([object_to_find])  # Delete after debug
-    virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph",
+    virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", rs_camera,
                                          words_per_minute=assistant_words_per_minute, volume=assistant_volume)
     fps = FPS(nsamples=fps_n_samples)
 
@@ -59,7 +59,7 @@ def run():
 
         # Only change gestures if the current mode is disabled or a mode exit gesture is detected
         if mode == 'disabled':
-            pass
+            break
 
         # Implement the functionalities for each mode
         if mode == 'finding':
@@ -115,11 +115,14 @@ def run():
         if mode == "assistant":
             # command = virtual_assistant.hey_virtual_assistant()
             # print(command)
-            cv2.destroyWindow('RealSense Camera Detection')
+            # if Window name 'RealSense Camera Detection' is not null, destroy it
+            if cv2.getWindowProperty('RealSense Camera Detection', cv2.WND_PROP_VISIBLE) == 1:
+                cv2.destroyWindow('RealSense Camera Detection')
             mode = virtual_assistant.hey_virtual_assistant()
             fps.reset()
             print("Assistant mode")
             continue
+
 
         # Check for mode change
         if rs_camera.detect_covering(color_frame, depth_frame, visualize=True):
@@ -165,8 +168,8 @@ def load_system():
     screen_width = settings.get('screen_width', 640)
     screen_height = settings.get('screen_height', 480)
     yolo = YoloWorld(yolo_world_path)
-    classifier = Classifier(model_path=classifier_path, visualize=is_visualize)
     rs_camera = RealsenseCamera(width=screen_width, height=screen_height)
+    classifier = Classifier(model_path=classifier_path, visualize=is_visualize)
     return yolo, classifier, rs_camera, settings
 
 

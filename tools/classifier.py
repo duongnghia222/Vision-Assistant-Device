@@ -1,7 +1,7 @@
 import torch
 from torch.nn import functional as F
 from PIL import Image
-from transformers import AutoImageProcessor, ResNetForImageClassification
+from transformers import AutoImageProcessor, ResNetForImageClassification, AutoModelForImageClassification
 import cv2
 
 
@@ -44,6 +44,28 @@ class Classifier:
         class_labels = [self.classifier.config.id2label[idx] for idx in topk_indices]
         return class_labels, topk_probs
 
+
+class WeatherClassifier:
+    # Initialize the classifier
+    def __init__(self, model_path):
+        self.classifier = AutoModelForImageClassification.from_pretrained(model_path)
+        self.image_processor = AutoImageProcessor.from_pretrained(model_path)
+
+    def process_image(self, frame):
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        image = Image.fromarray(frame)
+        inputs = self.image_processor(images=image, return_tensors="pt")
+        return inputs
+
+    def predict(self, frame):
+        inputs = self.process_image(frame)
+        with torch.no_grad():
+            outputs = self.classifier(**inputs)
+        logits = outputs.logits
+        probs = F.softmax(logits, dim=-1)
+        top_prob, top_index = torch.max(probs, dim=-1)
+        class_label = self.classifier.config.id2label[top_index.item()]
+        return class_label, top_prob.item()
 
 
 

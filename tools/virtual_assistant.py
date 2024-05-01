@@ -7,6 +7,7 @@ from nltk.tokenize import word_tokenize
 import os
 from thefuzz import process
 import datetime
+from tools.classifier import WeatherClassifier
 
 
 def download_nltk_resources():
@@ -26,8 +27,9 @@ def remove_stopwords(text):
 
 
 class VirtualAssistant:
-    def __init__(self, recognizer_model_path, words_per_minute=150, volume=0.9):
+    def __init__(self, recognizer_model_path, rs_camera, words_per_minute=150, volume=0.9):
         self.recognizer_model_path = recognizer_model_path
+        self.rs_camera = rs_camera
         self.audio = pyaudio.PyAudio()
         self.recognizer = KaldiRecognizer(Model(self.recognizer_model_path), 16000)
 
@@ -85,7 +87,7 @@ class VirtualAssistant:
 
     def recognize_command(self, command_prompt="None", confirm_command="None"):
         choices = ["change mode to finding", "change mode to walking", "take note",
-                   "quit program", "what time is it", "change setting"]
+                   "quit program", "what time is it", "what's the weather like", "change setting"]
         command = None
         previous_text = None
         stream = self.audio.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=4096)
@@ -114,6 +116,12 @@ class VirtualAssistant:
                         # self.speak(f"You want to {confirm_command} {text}! Say 'ok' to confirm")
                         if confidence > 55:
                             previous_text = choice[0]
+                            if previous_text == "what time is it":
+                                self.speak("You want to know the current time! Say 'ok' to confirm")
+                            elif previous_text == "what's the weather like":
+                                self.speak("You want to know the current weather! Say 'ok' to confirm")
+                            else:
+                                self.speak(f"You want to {previous_text}! Say 'ok' to confirm")
                             print(f"You want to {previous_text}! Say 'ok' to confirm")
                             print(confidence)
                         else:
@@ -141,16 +149,31 @@ class VirtualAssistant:
     def change_setting(self):
         pass
 
+    def weather_classify(self):
+        weather_classifier = WeatherClassifier("models/vit-base-patch16-224-in21k-weather-images-classification")
+        ret, color_frame, _, _ = self.rs_camera.get_frame_stream()
+        if not ret:
+            print("Error: Could not read frame.")
+            return
+        class_label, prob = weather_classifier.predict(color_frame)
+        print(class_label, prob)
+
     def hey_virtual_assistant(self):
-        self.speak("Hello, I am your virtual assistant. How can I help you today?")
-        command = self.recognize_command()
-        if command == "change mode to finding":
-            return "finding"
-        elif command == "change mode to walking":
-            return "walking"
-        elif command == "what time is it":
-            self.get_time()
-        return "assistant"
+        mode = "assistant"
+        while mode == "assistant":
+            self.speak("Hello, I am your virtual assistant. How can I help you today?")
+            command = self.recognize_command()
+            if command == "change mode to finding":
+                mode = "finding"
+            elif command == "change mode to walking":
+                mode = "walking"
+            elif command == "quit program":
+                mode = "disabled"
+            elif command == "what time is it":
+                self.get_time()
+            elif command == "what's the weather like":
+                self.weather_classify()
+        return mode
 
     def navigate_to_object(self, instruction, rotation_degrees, distance):
         if instruction == "stop":
