@@ -113,12 +113,14 @@ def run():
             print(direction, size, distance, obstacle_class, prob)
 
         if mode == "assistant":
+
             # command = virtual_assistant.hey_virtual_assistant()
             # print(command)
             # if Window name 'RealSense Camera Detection' is not null, destroy it
             if cv2.getWindowProperty('RealSense Camera Detection', cv2.WND_PROP_VISIBLE) == 1:
                 cv2.destroyWindow('RealSense Camera Detection')
             mode = virtual_assistant.hey_virtual_assistant()
+
             fps.reset()
             print("Assistant mode")
             continue

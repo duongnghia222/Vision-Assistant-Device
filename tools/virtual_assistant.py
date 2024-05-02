@@ -141,13 +141,17 @@ class VirtualAssistant:
         self.speak(f"The current time is {time_str}.")
 
     def take_note(self):
-        pass
+        with open("note.txt", "a") as f:
+            self.speak("What would you like to write?")
+            note = self.recognize_command()
+            f.write(note + "\n")
 
     def play_music(self):
         pass
 
     def change_setting(self):
         pass
+
 
     def weather_classify(self):
         weather_classifier = WeatherClassifier("models/vit-base-patch16-224-in21k-weather-images-classification")
@@ -194,3 +198,4 @@ class VirtualAssistant:
         self.engine.stop()
         self.engine.runAndWait()
         print("Virtual Assistant closed")
+

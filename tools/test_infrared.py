@@ -5,6 +5,7 @@ import numpy as np
 # Create a pipeline
 pipeline = rs.pipeline()
 
+
 # Create a config object
 config = rs.config()
 
