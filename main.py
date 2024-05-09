@@ -89,8 +89,8 @@ def run():
                     virtual_assistant.navigate_to_object(instruction, rotation_degrees, distance)
                     # cv2.destroyWindow("Instruction text")
                     last_navigate_to_object_time = time.time()
-                obstacles = obstacles_detect(depth_frame, [screen_width // 3, 0,
-                                                           screen_width - screen_width // 3, screen_height], min_distance,
+                obstacles = obstacles_detect(depth_frame, [screen_width // 4, 0,
+                                                           screen_width - screen_width // 4, screen_height], min_distance,
                                              size_threshold, color_frame)
                 direction, size, distance, obstacle_class, prob = get_obstacle_info(obstacles, classifier,
                                                                                     color_frame=color_frame,
@@ -108,7 +108,7 @@ def run():
             direction, size, distance, obstacle_class, prob = get_obstacle_info(obstacles, classifier,
                                                                                 color_frame=color_frame,
                                                                                 visualize=is_visualize,
-                                                                                use_classifier=True)
+                                                                                use_classifier=False)
             if direction and size and distance and time.time() - last_inform_obstacle_location_time >= 7:
                 virtual_assistant.inform_obstacle_location(direction, size, obstacle_class, prob)
                 last_inform_obstacle_location_time = time.time()
@@ -173,7 +173,7 @@ def load_system():
     screen_height = settings.get('screen_height', 480)
     yolo = YoloWorld(yolo_world_path)
     rs_camera = RealsenseCamera(width=screen_width, height=screen_height)
-    classifier = Classifier(model_path=classifier_path, visualize=is_visualize)
+    classifier = Classifier(model_path=classifier_path, visualize=False)
     return yolo, classifier, rs_camera, settings
 
 
