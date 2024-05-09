@@ -65,7 +65,8 @@ class VirtualAssistant:
                 print(text)
                 if text:
                     if text in ["ok", "k", "okay"]:
-                        if not command or not previous_text:
+                        # print("loop 1:", '\ntext: ', text, '\nprev: ', previous_text, '\ncmd: ', command)
+                        if not previous_text:
                             # self.speak("Please provide a command first")
                             print("Please provide a command first")
                         else:
@@ -74,9 +75,11 @@ class VirtualAssistant:
                     elif text in ["exit", "quit", "stop", "cancel"]:
                         break
                     else:
+                        # print("loop 2:", '\ntext: ', text, '\nprev: ', previous_text, '\ncmd: ', command)
                         previous_text = text
                         # self.speak(f"You want to {confirm_command} {text}! Say 'ok' to confirm")
-                        print(f"You want to find {text}! Say 'ok' to confirm")
+                        self.speak(f"You want to find {text}?")
+                        print(f"You want to find {text}?")
                 else:
                     # self.speak("Say it again")
                     print("Say it again")
@@ -104,6 +107,7 @@ class VirtualAssistant:
                 text = ' '.join(dict.fromkeys(text.split()))
                 if text:
                     if text in ["ok", "k", "okay"]:
+                        # print("loop 1:", '\ntext: ', text, '\nprev: ', previous_text, '\ncmd: ', command)
                         if not previous_text:
                             # self.speak("Please provide a command first")
                             print("Please provide a command first")
@@ -111,6 +115,7 @@ class VirtualAssistant:
                             command = previous_text
                             break
                     else:
+                        # print("loop 2:", '\ntext: ', text, '\nprev: ', previous_text, '\ncmd: ', command)
                         choice = process.extractOne(text, choices)
                         confidence = choice[1]
                         # self.speak(f"You want to {confirm_command} {text}! Say 'ok' to confirm")
@@ -182,16 +187,16 @@ class VirtualAssistant:
     def navigate_to_object(self, instruction, rotation_degrees, distance):
         if instruction == "stop":
             self.speak(instruction)
-        elif instruction == "move forward":
-            self.speak(instruction + " " + str(round(distance / 1000, 1)) + " meters away")
+        elif instruction == "straight":
+            self.speak(instruction + "      at " + str(round(distance / 1000, 1)) + " meters")
         else:
-            self.speak(instruction + " " + str(rotation_degrees) + " degrees" + ". Your object is " +
-                       str(round(distance / 1000, 1)) + " meters away")
+            self.speak(instruction + "      at " + str(rotation_degrees) + " degrees. And" +
+                       str(round(distance / 1000, 1)) + " meters")
 
     def inform_obstacle_location(self, direction, size, obstacle_class, prob):
-        if obstacle_class and prob:
-            self.speak(f"Probably {obstacle_class} with confidence {int(prob)} percent")
         self.speak(f"{size} obstacle on {direction}")
+        if obstacle_class and prob:
+            self.speak(f"Probably {obstacle_class}") #  with confidence {int(prob)} percent
 
     def close(self):
         self.audio.terminate()
@@ -199,3 +204,70 @@ class VirtualAssistant:
         self.engine.runAndWait()
         print("Virtual Assistant closed")
 
+
+
+    def receive_object_test(self, test_obj):
+        command = None
+        previous_text = None
+        self.speak("What object do you want to find?")
+        stream = self.audio.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=2048)
+        stream.start_stream()
+        while not command:
+            data = stream.read(1024, exception_on_overflow=False)
+            if self.recognizer.AcceptWaveform(data):
+                text = self.recognizer.Result()
+                # print(text)
+                # text = text[14:-3].lower().strip()
+                # text = remove_stopwords(text)
+                text = test_obj
+                print(text)
+                # remove duplicates
+                text = ' '.join(dict.fromkeys(text.split()))
+                print(text)
+                previous_text = text
+                # self.speak(f"You want to {confirm_command} {text}! Say 'ok' to confirm")
+                self.speak(f"You want to find {text}?")
+                print(f"You want to find {text}! Say 'ok' to confirm")
+                
+            data = stream.read(1024, exception_on_overflow=False)
+            if self.recognizer.AcceptWaveform(data):
+                text = self.recognizer.Result()
+                # print(text)
+                # text = text[14:-3].lower().strip()
+                # text = remove_stopwords(text)
+                text = 'okay'
+                print(text)
+                # remove duplicates
+                text = ' '.join(dict.fromkeys(text.split()))
+                print(text)
+                command = previous_text
+                break
+                
+                
+                
+                
+                if text:
+                    if text in ["ok", "k", "okay"]:
+                        # print("loop 1:", '\ntext: ', text, '\nprev: ', previous_text, '\ncmd: ', command)
+                        if not previous_text:
+                            # self.speak("Please provide a command first")
+                            print("Please provide a command first")
+                        else:
+                            command = previous_text
+                            break
+                    elif text in ["exit", "quit", "stop", "cancel"]:
+                        break
+                    else:
+                        # print("loop 2:", '\ntext: ', text, '\nprev: ', previous_text, '\ncmd: ', command)
+                        previous_text = text
+                        # self.speak(f"You want to {confirm_command} {text}! Say 'ok' to confirm")
+                        self.speak(f"You want to find {text}?")
+                        print(f"You want to find {text}! Say 'ok' to confirm")
+                        text = 'okay'
+                else:
+                    # self.speak("Say it again")
+                    print("Say it again")
+
+        stream.stop_stream()
+        stream.close()
+        return command

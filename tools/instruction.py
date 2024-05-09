@@ -82,11 +82,11 @@ def get_object_info(bbox, distance, min_dis, color_frame, visualize=False):
 
     # Determine the direction to move
     if box_center_x < middle_x - middle_diff:
-        direction = "turn left"
+        direction = "left"
     elif box_center_x > middle_x + middle_diff:
-        direction = "turn right"
+        direction = "right"
     else:
-        direction = "move forward"
+        direction = "straight"
 
     # Incorporate depth information for distance
     if distance < min_dis:

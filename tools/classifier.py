@@ -7,13 +7,14 @@ import cv2
 
 class Classifier:
     # Initialize the classifier
-    def __init__(self, model_path, visualize=False):
+    def __init__(self, model_path, visualize=True):
         self.classifier = ResNetForImageClassification.from_pretrained(model_path)
         self.image_processor = AutoImageProcessor.from_pretrained(model_path)
         self.visual = visualize
 
     def process_image(self, frame):
         if self.visual:
+            print("Loop")
             cv2.imshow("Image input to classifier", frame)
             cv2.waitKey(0)
             cv2.destroyAllWindows()

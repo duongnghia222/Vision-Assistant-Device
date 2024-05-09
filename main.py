@@ -10,25 +10,27 @@ from tools.yolo_world import YoloWorld
 from tools.classifier import Classifier
 from tools.instruction import get_object_info, get_obstacle_info
 from tools.virtual_assistant import VirtualAssistant
+virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
+                                         words_per_minute=120, volume=0.9)
 from tools.FPS import FPS
 from tools.realsense_camera import *
 from tools.custom_segmentation import segment_object
 from tools.obstacles_detect import obstacles_detect
 from ultis.draw import display_text
-from tools.finger_count import FingersCount
-from tools.tracker import Tracker
+# from tools.finger_count import FingersCount
+# from tools.tracker import Tracker
 
 
 def run():
     # Load settings
     mode = settings.get('mode', 'BGF')  # For debug, change to disabled after that
-    object_to_find = settings.get('object_to_find', None)
+    object_to_find = settings.get('object_to_find', 'door')
     screen_width = settings.get('screen_width', 640)
     screen_height = settings.get('screen_height', 480)
     fps_n_samples = settings.get('fps_n_samples', 50)
     is_visualize = settings.get('is_visualize', False)
     iou_threshold = settings.get('iou_threshold', 0.1)
-    default_conf_threshold = settings.get('conf_threshold', 0.25)
+    default_conf_threshold = settings.get('conf_threshold', 0.01)
     max_det = settings.get('max_det', 300)
     assistant_volume = settings.get('assistant_volume', 0.5)
     assistant_words_per_minute = settings.get('assistant_words_per_minute', 120)
@@ -38,8 +40,8 @@ def run():
     covering_duration_threshold = settings.get('covering_duration_threshold', 2)
 
     yolo.set_object_to_find([object_to_find])  # Delete after debug
-    virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", rs_camera,
-                                         words_per_minute=assistant_words_per_minute, volume=assistant_volume)
+    # virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", rs_camera,
+    #                                      words_per_minute=assistant_words_per_minute, volume=assistant_volume)
     fps = FPS(nsamples=fps_n_samples)
 
     # Runtime variable
@@ -78,24 +80,24 @@ def run():
                 instruction, rotation_degrees, distance = get_object_info(bbox, depth, min_distance, color_frame,
                                                                           is_visualize)
 
-                if time.time() - last_navigate_to_object_time >= 5:
+                if time.time() - last_navigate_to_object_time >= 15:
                     # Destroy cv2 window named 'RealSense Camera Detection':
-                    cv2.destroyWindow('RealSense Camera Detection')
+                    # cv2.destroyWindow('RealSense Camera Detection')
                     # display_text(f"{instruction}, {rotation_degrees}, {distance}", "Instruction text",
                     # screen_width, screen_height)
 
                     virtual_assistant.navigate_to_object(instruction, rotation_degrees, distance)
                     # cv2.destroyWindow("Instruction text")
                     last_navigate_to_object_time = time.time()
-                obstacles = obstacles_detect(depth_frame, [0, screen_width // 3, screen_height,
-                                                           screen_width - screen_width // 3], distance_threshold,
+                obstacles = obstacles_detect(depth_frame, [screen_width // 3, 0,
+                                                           screen_width - screen_width // 3, screen_height], min_distance,
                                              size_threshold, color_frame)
                 direction, size, distance, obstacle_class, prob = get_obstacle_info(obstacles, classifier,
                                                                                     color_frame=color_frame,
                                                                                     visualize=is_visualize,
                                                                                     use_classifier=False)
                 print(direction, size, distance, obstacle_class, prob)
-                if direction and size and distance and time.time() - last_inform_obstacle_location_time >= 2:
+                if direction and size and distance and time.time() - last_inform_obstacle_location_time >= 7:
                     virtual_assistant.inform_obstacle_location(direction, size, obstacle_class, prob)
                     last_inform_obstacle_location_time = time.time()
 
@@ -106,14 +108,14 @@ def run():
             direction, size, distance, obstacle_class, prob = get_obstacle_info(obstacles, classifier,
                                                                                 color_frame=color_frame,
                                                                                 visualize=is_visualize,
-                                                                                use_classifier=False)
-            if direction and size and distance and time.time() - last_inform_obstacle_location_time >= 2:
+                                                                                use_classifier=True)
+            if direction and size and distance and time.time() - last_inform_obstacle_location_time >= 7:
                 virtual_assistant.inform_obstacle_location(direction, size, obstacle_class, prob)
                 last_inform_obstacle_location_time = time.time()
             print(direction, size, distance, obstacle_class, prob)
 
         if mode == "assistant":
-
+            object_to_find = None
             # command = virtual_assistant.hey_virtual_assistant()
             # print(command)
             # if Window name 'RealSense Camera Detection' is not null, destroy it
@@ -166,7 +168,7 @@ def load_system():
     print(device)
     yolo_world_path = settings.get('yolo_world_path', 'yolov8m-world.pt')
     classifier_path = settings.get('classifier_path', 'models/resnet-50')
-    is_visualize = settings.get('visualize', False)
+    is_visualize = settings.get('is_visualize', True)
     screen_width = settings.get('screen_width', 640)
     screen_height = settings.get('screen_height', 480)
     yolo = YoloWorld(yolo_world_path)
