@@ -148,18 +148,61 @@ import numpy as np
 # result = calculate_series(max_terms)
 # print(f"The sum of the series up to {max_terms} terms is: {result:.6f}")
 
-from thefuzz import process
-from thefuzz import fuzz
+# from thefuzz import process
+# from thefuzz import fuzz
 
-# Define the two strings
-string1 = "change finding mode to finding"
-string2 = "chain moat to fighting"
-string3 = "change mode to walking"
+# # Define the two strings
+# string1 = "change finding mode to finding"
+# string2 = "chain moat to fighting"
+# string3 = "change mode to walking"
 
-# Calculate the similarity score using token sort ratio
-similarity_score = fuzz.partial_token_sort_ratio(string1, string2)
-similarity_score2 = fuzz.partial_token_sort_ratio(string1, string3)
+# # Calculate the similarity score using token sort ratio
+# similarity_score = fuzz.partial_token_sort_ratio(string1, string2)
+# similarity_score2 = fuzz.partial_token_sort_ratio(string1, string3)
 
-# Print the similarity score
-print("Similarity Score:", similarity_score)
-print("Similarity Score2:", similarity_score2)
+# # Print the similarity score
+# print("Similarity Score:", similarity_score)
+# print("Similarity Score2:", similarity_score2)
+
+
+from tools.virtual_assistant import VirtualAssistant
+import time
+# # Create a VirtualAssistant instance
+virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
+                                         words_per_minute=250, volume=0.9)
+
+virtual_assistant.hey_virtual_assistant()
+
+# from subprocess import call
+# call(["", "Hello, I am your virtual assistant. How can I help you today?"])
+
+# from gtts import gTTS
+# tts = gTTS("Hello, I am your personal virtual assistant. How can I help you today?", lang='en')
+# tts.save('hello.mp3')
+# play the mp3 file in a threading
+# import os
+# os.system("mpg321 hello.mp3")
+# import pygame
+# import threading
+# import time
+
+# def play_mp3(file):
+#     pygame.mixer.init()
+#     pygame.mixer.music.load(file)
+#     pygame.mixer.music.play()
+
+# def main():
+#     count = 3
+#     while count > 0:
+#         mp3_file = "hello.mp3"  # Replace this with the path to your MP3 file
+
+#         # Create a thread for playing the MP3 file
+#         mp3_thread = threading.Thread(target=play_mp3, args=(mp3_file,))
+#         mp3_thread.start()
+#         print("Playing MP3 file...")
+#         count -= 1
+
+
+# if __name__ == "__main__":
+#     main()
+

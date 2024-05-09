@@ -8,14 +8,17 @@ import os
 from thefuzz import process
 import datetime
 from tools.classifier import WeatherClassifier
-
+import threading
+from subprocess import call
+nltk.data.path.append("./../nltk_data")
 
 def download_nltk_resources():
-    nltk.data.path.append("./../nltk_data")
     if not os.path.exists("./../nltk_data/corpora/stopwords"):
+        print("Downloading stopwords")
         nltk.download('stopwords', download_dir="./../nltk_data")
     if not os.path.exists("./../nltk_data/tokenizers/punkt"):
-        nltk.download('punkt', download_dir="./nltk_data")
+        print("Downloading punkt")
+        nltk.download('punkt', download_dir="./../nltk_data")
 
 
 def remove_stopwords(text):
@@ -34,17 +37,23 @@ class VirtualAssistant:
         self.recognizer = KaldiRecognizer(Model(self.recognizer_model_path), 16000)
 
         # VA Voice
-        self.engine = pyttsx3.init()
-        self.engine.setProperty('rate', words_per_minute)
-        self.engine.setProperty('volume', volume)
+        # self.engine = pyttsx3.init()
+        # self.engine_is_running = False
+        # self.engine.setProperty('rate', words_per_minute)
+        # self.engine.setProperty('volume', volume)
         download_nltk_resources()
 
+
     def speak(self, text):
-        try:
-            self.engine.say(text)
-            self.engine.runAndWait()
-        except Exception as e:
-            print(f"An error occurred during speech: {e}")
+        def run_on_separate_thread(text):
+                self.engine = pyttsx3.init()
+                self.engine.say(text)
+                self.engine.runAndWait()
+                self.engine.stop()  
+                print("stopped", text)
+
+        thread = threading.Thread(target=run_on_separate_thread, args=(text,))
+        thread.start()
 
     def receive_object(self):
         command = None
@@ -95,6 +104,7 @@ class VirtualAssistant:
         previous_text = None
         stream = self.audio.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=4096)
         stream.start_stream()
+        print("Listening...")
         while not command:
             data = stream.read(2048, exception_on_overflow=False)
             if self.recognizer.AcceptWaveform(data):
@@ -204,70 +214,3 @@ class VirtualAssistant:
         self.engine.runAndWait()
         print("Virtual Assistant closed")
 
-
-
-    def receive_object_test(self, test_obj):
-        command = None
-        previous_text = None
-        self.speak("What object do you want to find?")
-        stream = self.audio.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=2048)
-        stream.start_stream()
-        while not command:
-            data = stream.read(1024, exception_on_overflow=False)
-            if self.recognizer.AcceptWaveform(data):
-                text = self.recognizer.Result()
-                # print(text)
-                # text = text[14:-3].lower().strip()
-                # text = remove_stopwords(text)
-                text = test_obj
-                print(text)
-                # remove duplicates
-                text = ' '.join(dict.fromkeys(text.split()))
-                print(text)
-                previous_text = text
-                # self.speak(f"You want to {confirm_command} {text}! Say 'ok' to confirm")
-                self.speak(f"You want to find {text}?")
-                print(f"You want to find {text}! Say 'ok' to confirm")
-                
-            data = stream.read(1024, exception_on_overflow=False)
-            if self.recognizer.AcceptWaveform(data):
-                text = self.recognizer.Result()
-                # print(text)
-                # text = text[14:-3].lower().strip()
-                # text = remove_stopwords(text)
-                text = 'okay'
-                print(text)
-                # remove duplicates
-                text = ' '.join(dict.fromkeys(text.split()))
-                print(text)
-                command = previous_text
-                break
-                
-                
-                
-                
-                if text:
-                    if text in ["ok", "k", "okay"]:
-                        # print("loop 1:", '\ntext: ', text, '\nprev: ', previous_text, '\ncmd: ', command)
-                        if not previous_text:
-                            # self.speak("Please provide a command first")
-                            print("Please provide a command first")
-                        else:
-                            command = previous_text
-                            break
-                    elif text in ["exit", "quit", "stop", "cancel"]:
-                        break
-                    else:
-                        # print("loop 2:", '\ntext: ', text, '\nprev: ', previous_text, '\ncmd: ', command)
-                        previous_text = text
-                        # self.speak(f"You want to {confirm_command} {text}! Say 'ok' to confirm")
-                        self.speak(f"You want to find {text}?")
-                        print(f"You want to find {text}! Say 'ok' to confirm")
-                        text = 'okay'
-                else:
-                    # self.speak("Say it again")
-                    print("Say it again")
-
-        stream.stop_stream()
-        stream.close()
-        return command

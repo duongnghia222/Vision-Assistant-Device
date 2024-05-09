@@ -1,2 +1,10 @@
 torch
 opencv-python
+vosk
+pyttsx3
+thefuzz
+pyrealsense2
+pyaudio
+nltk
+transformers
+ultralytics
