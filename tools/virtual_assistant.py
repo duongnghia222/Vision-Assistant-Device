@@ -121,6 +121,7 @@ class VirtualAssistant:
             "top" : "time",
             "whether" : "weather",
             "fighting" : "finding",
+            "quick" : "quit",   
 
         }
         stream = self.audio.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=4096)
@@ -200,10 +201,13 @@ class VirtualAssistant:
         class_label, prob = weather_classifier.predict(color_frame)
         print(class_label, prob)
 
-    def hey_virtual_assistant(self):
+    def hey_virtual_assistant(self, first_run):
         mode = "assistant"
         while mode == "assistant":
-            self.speak("Hello, I am your virtual assistant. How can I help you today?")
+            if first_run:
+                self.speak("Hello, I am your virtual assistant. How can I help you today?")
+            else:
+                self.speak("Welcome back, how can I help you today?")
             command = self.recognize_command()
             if command == "change mode to finding":
                 mode = "finding"
@@ -235,7 +239,5 @@ class VirtualAssistant:
 
     def close(self):
         self.audio.terminate()
-        self.engine.stop()
-        self.engine.runAndWait()
         print("Virtual Assistant closed")
 

@@ -43,7 +43,7 @@ def run():
     # virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", rs_camera,
     #                                      words_per_minute=assistant_words_per_minute, volume=assistant_volume)
     fps = FPS(nsamples=fps_n_samples)
-
+    first_run = True
     # Runtime variable
     covering_detected = False
     covering_start_time = None
@@ -124,7 +124,7 @@ def run():
             # if Window name 'RealSense Camera Detection' is not null, destroy it
             if cv2.getWindowProperty('RealSense Camera Detection', cv2.WND_PROP_VISIBLE) == 1:
                 cv2.destroyWindow('RealSense Camera Detection')
-            mode = virtual_assistant.hey_virtual_assistant()
+            mode = virtual_assistant.hey_virtual_assistant(first_run)
 
             fps.reset()
             print("Assistant mode")
