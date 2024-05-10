@@ -115,6 +115,14 @@ class VirtualAssistant:
                    "quit program", "what time is it", "what's the weather like", "change setting"]
         command = None
         previous_text = None
+        special_cases = {
+            "tom" : "time",
+            "thomas" : "time",
+            "top" : "time",
+            "whether" : "weather",
+            "fighting" : "finding",
+
+        }
         stream = self.audio.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=4096)
         stream.start_stream()
         print("Listening...")
@@ -125,6 +133,8 @@ class VirtualAssistant:
                 print(text)
                 text = text[14:-3].lower().strip()
                 text = remove_stopwords(text)
+                # if special cases exist, replace them
+                text = ' '.join([special_cases[word] if word in special_cases else word for word in text.split()])
                 print(text)
                 # remove duplicates
                 text = ' '.join(dict.fromkeys(text.split()))
