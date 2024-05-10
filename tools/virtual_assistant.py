@@ -10,6 +10,7 @@ import datetime
 from tools.classifier import WeatherClassifier
 import threading
 from subprocess import call
+from multiprocessing import Process
 nltk.data.path.append("./../nltk_data")
 
 def download_nltk_resources():
@@ -28,6 +29,13 @@ def remove_stopwords(text):
     filtered_text = ' '.join(filtered_words)
     return filtered_text
 
+def run_on_separate_thread(text):
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()
+    engine.stop()  
+    print("stopped", text)
+
 
 class VirtualAssistant:
     def __init__(self, recognizer_model_path, rs_camera, words_per_minute=150, volume=0.9):
@@ -44,16 +52,21 @@ class VirtualAssistant:
         download_nltk_resources()
 
 
-    def speak(self, text):
-        def run_on_separate_thread(text):
-                self.engine = pyttsx3.init()
-                self.engine.say(text)
-                self.engine.runAndWait()
-                self.engine.stop()  
-                print("stopped", text)
+    # def speak(self, text):
+    #     def run_on_separate_thread(text):
+    #             self.engine = pyttsx3.init()
+    #             self.engine.say(text)
+    #             self.engine.runAndWait()
+    #             self.engine.stop()  
+    #             print("stopped", text)
 
-        thread = threading.Thread(target=run_on_separate_thread, args=(text,))
-        thread.start()
+    #     thread = threading.Thread(target=run_on_separate_thread, args=(text,))
+    #     thread.start()
+    
+
+    def speak(self, text):
+        threading.Thread(target=run_on_separate_thread, args=(text,)).start()
+    #     thread.start()
 
     def receive_object(self):
         command = None
@@ -90,7 +103,7 @@ class VirtualAssistant:
                         self.speak(f"You want to find {text}?")
                         print(f"You want to find {text}?")
                 else:
-                    # self.speak("Say it again")
+                    self.speak("Say it again")
                     print("Say it again")
 
         stream.stop_stream()
