@@ -112,7 +112,7 @@ class VirtualAssistant:
 
     def recognize_command(self, command_prompt="None", confirm_command="None"):
         choices = ["change mode to finding", "change mode to walking", "take note",
-                   "quit program", "what time is it", "what's the weather like", "change setting"]
+                   "quit program", "what time is it", "what's the weather like", "change setting", "disabled all modes"]
         command = None
         previous_text = None
         special_cases = {
@@ -209,8 +209,10 @@ class VirtualAssistant:
                 mode = "finding"
             elif command == "change mode to walking":
                 mode = "walking"
-            elif command == "quit program":
+            elif command == "disabled all modes":
                 mode = "disabled"
+            elif command == "quit program":
+                mode = "off"
             elif command == "what time is it":
                 self.get_time()
             elif command == "what's the weather like":

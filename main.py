@@ -61,6 +61,9 @@ def run():
 
         # Only change gestures if the current mode is disabled or a mode exit gesture is detected
         if mode == 'disabled':
+            continue
+
+        if mode == 'off':
             break
 
         # Implement the functionalities for each mode
