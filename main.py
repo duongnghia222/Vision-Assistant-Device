@@ -125,7 +125,7 @@ def run():
             if cv2.getWindowProperty('RealSense Camera Detection', cv2.WND_PROP_VISIBLE) == 1:
                 cv2.destroyWindow('RealSense Camera Detection')
             mode = virtual_assistant.hey_virtual_assistant(first_run)
-
+            first_run = False
             fps.reset()
             print("Assistant mode")
             continue
