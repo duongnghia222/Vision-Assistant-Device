@@ -38,6 +38,9 @@ def run():
     distance_threshold = settings.get('distance_threshold', 1000)
     size_threshold = settings.get('size_threshold', 15000)
     covering_duration_threshold = settings.get('covering_duration_threshold', 2)
+    time_between_inform_obstacle = settings.get('time_between_inform_obstacle', 7)
+    time_between_inform_obstacle_finding = settings.get('time_between_inform_obstacle_finding', 7)
+    time_between_navigation = settings.get('time_between_navigation', 7)
 
     yolo.set_object_to_find([object_to_find])  # Delete after debug
     # virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", rs_camera,
@@ -83,7 +86,7 @@ def run():
                 instruction, rotation_degrees, distance = get_object_info(bbox, depth, min_distance, color_frame,
                                                                           is_visualize)
 
-                if time.time() - last_navigate_to_object_time >= 15:
+                if time.time() - last_navigate_to_object_time >= time_between_navigation:
                     # Destroy cv2 window named 'RealSense Camera Detection':
                     # cv2.destroyWindow('RealSense Camera Detection')
                     # display_text(f"{instruction}, {rotation_degrees}, {distance}", "Instruction text",
@@ -92,6 +95,7 @@ def run():
                     virtual_assistant.navigate_to_object(instruction, rotation_degrees, distance)
                     # cv2.destroyWindow("Instruction text")
                     last_navigate_to_object_time = time.time()
+                min_distance = 500
                 obstacles = obstacles_detect(depth_frame, [screen_width // 4, 0,
                                                            screen_width - screen_width // 4, screen_height], min_distance,
                                              size_threshold, color_frame)
@@ -100,7 +104,7 @@ def run():
                                                                                     visualize=is_visualize,
                                                                                     use_classifier=False)
                 print(direction, size, distance, obstacle_class, prob)
-                if direction and size and distance and time.time() - last_inform_obstacle_location_time >= 7:
+                if direction and size and distance and time.time() - last_inform_obstacle_location_time >= time_between_inform_obstacle_finding:
                     virtual_assistant.inform_obstacle_location(direction, size, obstacle_class, prob)
                     last_inform_obstacle_location_time = time.time()
 
@@ -112,7 +116,7 @@ def run():
                                                                                 color_frame=color_frame,
                                                                                 visualize=is_visualize,
                                                                                 use_classifier=False)
-            if direction and size and distance and time.time() - last_inform_obstacle_location_time >= 7:
+            if direction and size and distance and time.time() - last_inform_obstacle_location_time >= time_between_inform_obstacle:
                 virtual_assistant.inform_obstacle_location(direction, size, obstacle_class, prob)
                 last_inform_obstacle_location_time = time.time()
             print(direction, size, distance, obstacle_class, prob)
