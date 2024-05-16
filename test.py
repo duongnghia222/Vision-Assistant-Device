@@ -171,7 +171,7 @@ import time
 virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
                                          words_per_minute=250, volume=0.9)
 
-virtual_assistant.hey_virtual_assistant()
+virtual_assistant.hey_virtual_assistant(first_run=True)
 
 # from subprocess import call
 # call(["", "Hello, I am your virtual assistant. How can I help you today?"])

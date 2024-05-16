@@ -175,9 +175,10 @@ class VirtualAssistant:
                 data = stream.read(1024, exception_on_overflow=False)
                 if self.recognizer.AcceptWaveform(data):
                     text = self.recognizer.Result()
-                    print(text)
                     text = text[14:-3].strip()
-                    if text.lower() in ["stop", "exit", "quit"]:
+                    text = remove_stopwords(text)
+
+                    if text.lower() in {"stop", "exit", "quit"}:
                         self.speak("Note taking stopped.")
                         break
                     file.write(text + "\n")
