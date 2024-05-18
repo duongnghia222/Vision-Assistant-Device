@@ -52,21 +52,8 @@ class VirtualAssistant:
         download_nltk_resources()
 
 
-    # def speak(self, text):
-    #     def run_on_separate_thread(text):
-    #             self.engine = pyttsx3.init()
-    #             self.engine.say(text)
-    #             self.engine.runAndWait()
-    #             self.engine.stop()  
-    #             print("stopped", text)
-
-    #     thread = threading.Thread(target=run_on_separate_thread, args=(text,))
-    #     thread.start()
-    
-
     def speak(self, text):
         threading.Thread(target=run_on_separate_thread, args=(text,)).start()
-    #     thread.start()
 
     def receive_object(self):
         command = None
@@ -111,7 +98,7 @@ class VirtualAssistant:
         return command
 
     def recognize_command(self, command_prompt="None", confirm_command="None"):
-        choices = ["change mode to finding", "change mode to walking", "take note",
+        choices = ["change mode to finding", "change mode to walking", "take note", "listen note",
                    "quit program", "what time is it", "what's the weather like", "change setting", "disabled all modes"]
         command = None
         previous_text = None
@@ -180,10 +167,31 @@ class VirtualAssistant:
         self.speak(f"The current time is {time_str}.")
 
     def take_note(self):
-        with open("note.txt", "a") as f:
-            self.speak("What would you like to write?")
-            note = self.recognize_command()
-            f.write(note + "\n")
+        self.speak("Please start dictating your note.")
+        stream = self.audio.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=2048)
+        stream.start_stream()
+        with open("note.txt", "a") as file:
+            while True:
+                data = stream.read(1024, exception_on_overflow=False)
+                if self.recognizer.AcceptWaveform(data):
+                    text = self.recognizer.Result()
+                    text = text[14:-3].strip()
+                    text = remove_stopwords(text)
+
+                    if text.lower() in {"stop", "exit", "quit"}:
+                        self.speak("Note taking stopped.")
+                        break
+                    file.write(text + "\n")
+                    self.speak("Note added.")
+        stream.stop_stream()
+        stream.close()
+
+    def listen_note(self):
+        self.speak("Listening to notes.")
+        with open("note.txt", "r") as file:
+            lines = file.readlines()
+            for line in lines:
+                self.speak(line.strip())
 
     def play_music(self):
         pass
@@ -221,6 +229,10 @@ class VirtualAssistant:
                 self.get_time()
             elif command == "what's the weather like":
                 self.weather_classify()
+            elif command == "take note":
+                self.take_note()
+            elif command == "listen note":
+                self.listen_note()
         return mode
 
     def navigate_to_object(self, instruction, rotation_degrees, distance):
