@@ -15,7 +15,9 @@ def obstacles_detect(depth_frame, roi, distance_threshold, size_threshold, color
 
     # Clustering mask into different obstacles
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
+    # visualizing the contours
+    if color_frame is not None:
+        cv2.drawContours(color_frame, contours, -1, (0, 255, 0), 2)
     for contour in contours:
         if cv2.contourArea(contour) > size_threshold:
             print(cv2.contourArea(contour))
