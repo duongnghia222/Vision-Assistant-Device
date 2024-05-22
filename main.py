@@ -67,7 +67,7 @@ def run():
             continue
 
         if mode == 'off':
-            break
+            os.system("sudo shutdown now")
 
         # Implement the functionalities for each mode
         if mode == 'finding':
