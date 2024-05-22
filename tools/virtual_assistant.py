@@ -45,14 +45,20 @@ class VirtualAssistant:
         self.recognizer = KaldiRecognizer(Model(self.recognizer_model_path), 16000)
 
         # VA Voice
-        # self.engine = pyttsx3.init()
-        # self.engine_is_running = False
-        # self.engine.setProperty('rate', words_per_minute)
-        # self.engine.setProperty('volume', volume)
+        self.engine = pyttsx3.init()
+        self.engine_is_running = False
+        self.engine.setProperty('rate', words_per_minute)
+        self.engine.setProperty('volume', volume)
         download_nltk_resources()
-
-
+        
+        
     def speak(self, text):
+        self.engine.say(text)
+        self.engine.runAndWait()
+        
+
+
+    def speak_threading(self, text):
         threading.Thread(target=run_on_separate_thread, args=(text,)).start()
 
     def receive_object(self):
@@ -237,17 +243,17 @@ class VirtualAssistant:
 
     def navigate_to_object(self, instruction, rotation_degrees, distance):
         if instruction == "stop":
-            self.speak(instruction)
+            self.speak_threading(instruction)
         elif instruction == "straight":
-            self.speak(instruction + "      at " + str(round(distance / 1000, 1)) + " meters")
+            self.speak_threading(instruction + "      at " + str(round(distance / 1000, 1)) + " meters")
         else:
-            self.speak(instruction + "      at " + str(rotation_degrees) + " degrees. And" +
+            self.speak_threading(instruction + "      at " + str(rotation_degrees) + " degrees. And" +
                        str(round(distance / 1000, 1)) + " meters")
 
     def inform_obstacle_location(self, direction, size, obstacle_class, prob):
-        self.speak(f"{size} obstacle on {direction}")
+        self.speak_threading(f"{size} obstacle on {direction}")
         if obstacle_class and prob:
-            self.speak(f"Probably {obstacle_class}") #  with confidence {int(prob)} percent
+            self.speak_threading(f"Probably {obstacle_class}") #  with confidence {int(prob)} percent
 
     def close(self):
         self.audio.terminate()
