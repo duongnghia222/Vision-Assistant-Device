@@ -122,6 +122,8 @@ def run():
             print(direction, size, distance, obstacle_class, prob)
 
         if mode == "assistant":
+            print("Waiting to clean up everything")
+            time.sleep(2)
             object_to_find = None
             # command = virtual_assistant.hey_virtual_assistant()
             # print(command)
