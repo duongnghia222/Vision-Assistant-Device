@@ -78,7 +78,9 @@ class VirtualAssistant:
                 # remove duplicates
                 text = ' '.join(dict.fromkeys(text.split()))
                 print(text)
-                if text:
+                # Make sure text contain object name, this is NER task, remove every word that is not an object name
+                # TODO
+                if text:    
                     if text in ["ok", "k", "okay"]:
                         # print("loop 1:", '\ntext: ', text, '\nprev: ', previous_text, '\ncmd: ', command)
                         if not previous_text:

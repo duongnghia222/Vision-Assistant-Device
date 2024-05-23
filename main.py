@@ -82,6 +82,8 @@ def run():
                                                 is_visualize)
             print(bbox)
             if bbox:
+                # pass through another classifer to make sure the object is the one we want
+                # TODO: Implement classifier to classify the object
                 object_mask, depth = segment_object(depth_frame, bbox)
                 instruction, rotation_degrees, distance = get_object_info(bbox, depth, min_distance, color_frame,
                                                                           is_visualize)
