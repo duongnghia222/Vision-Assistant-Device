@@ -165,13 +165,16 @@ import numpy as np
 # print("Similarity Score2:", similarity_score2)
 
 
-from tools.virtual_assistant import VirtualAssistant
-import time
-# # Create a VirtualAssistant instance
-virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
-                                         words_per_minute=250, volume=0.9)
+# from tools.virtual_assistant import VirtualAssistant
+# import time
+# # # Create a VirtualAssistant instance
+# virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
+#                                          words_per_minute=250, volume=0.9)
 
-virtual_assistant.hey_virtual_assistant(first_run=True)
+# virtual_assistant.hey_virtual_assistant(first_run=True)
+
+
+
 
 # from subprocess import call
 # call(["", "Hello, I am your virtual assistant. How can I help you today?"])
@@ -206,3 +209,62 @@ virtual_assistant.hey_virtual_assistant(first_run=True)
 # if __name__ == "__main__":
 #     main()
 
+# # Import necessary libraries
+# import spacy
+# from transformers import BertTokenizer, BertModel
+# import torch
+# import numpy as np
+# from sklearn.metrics.pairwise import cosine_similarity
+
+# # Load pre-trained models and tokenizers
+# nlp = spacy.load('en_core_web_trf')
+# tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+# model = BertModel.from_pretrained('bert-base-uncased')
+
+# # Function to get BERT embeddings
+# def get_bert_embeddings(text):
+#     inputs = tokenizer(text, return_tensors='pt')
+#     outputs = model(**inputs)
+#     return outputs.last_hidden_state.mean(dim=1).detach().numpy()
+
+# # Function to calculate cosine similarity
+# def cosine_sim(vec1, vec2):
+#     return cosine_similarity(vec1, vec2)[0][0]
+
+# # Example object names
+# object_name1 = "dinning table"
+# object_name2 = "table"
+
+# # Get embeddings
+# embedding1 = get_bert_embeddings(object_name1)
+# embedding2 = get_bert_embeddings(object_name2)
+# # Calculate similarity
+# similarity = cosine_sim(embedding1, embedding2)
+# print(f"Cosine Similarity: {similarity}")
+
+
+import gensim.downloader as api
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Load the GloVe model
+glove_model = api.load("glove-wiki-gigaword-100")  # You can choose other versions, e.g., 50, 200
+
+# Function to get word embeddings
+def get_word_embedding(word, model):
+    return model[word]
+
+# Function to calculate cosine similarity
+def cosine_sim(vec1, vec2):
+    return cosine_similarity([vec1], [vec2])[0][0]
+
+# Example object names
+object_name1 = "wallet"
+object_name2 = "purse"
+
+# Get embeddings
+embedding1 = get_word_embedding(object_name1, glove_model)
+embedding2 = get_word_embedding(object_name2, glove_model)
+
+# Calculate similarity
+similarity = cosine_sim(embedding1, embedding2)
+print(f"Cosine Similarity: {similarity}")
