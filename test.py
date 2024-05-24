@@ -243,28 +243,63 @@ import numpy as np
 # print(f"Cosine Similarity: {similarity}")
 
 
-import gensim.downloader as api
-from sklearn.metrics.pairwise import cosine_similarity
+# import gensim.downloader as api
+# from sklearn.metrics.pairwise import cosine_similarity
 
-# Load the GloVe model
-glove_model = api.load("glove-wiki-gigaword-100")  # You can choose other versions, e.g., 50, 200
+# # Load the GloVe model
+# glove_model = api.load("glove-wiki-gigaword-100")  # You can choose other versions, e.g., 50, 200
 
-# Function to get word embeddings
-def get_word_embedding(word, model):
-    return model[word]
+# # Function to get word embeddings
+# def get_word_embedding(word, model):
+#     return model[word]
 
-# Function to calculate cosine similarity
-def cosine_sim(vec1, vec2):
-    return cosine_similarity([vec1], [vec2])[0][0]
+# # Function to calculate cosine similarity
+# def cosine_sim(vec1, vec2):
+#     return cosine_similarity([vec1], [vec2])[0][0]
 
-# Example object names
-object_name1 = "wallet"
-object_name2 = "purse"
+# # Example object names
+# object_name1 = "man"
+# object_name2 = "woman"
 
-# Get embeddings
-embedding1 = get_word_embedding(object_name1, glove_model)
-embedding2 = get_word_embedding(object_name2, glove_model)
+# # Get embeddings
+# embedding1 = get_word_embedding(object_name1, glove_model)
+# embedding2 = get_word_embedding(object_name2, glove_model)
 
-# Calculate similarity
-similarity = cosine_sim(embedding1, embedding2)
-print(f"Cosine Similarity: {similarity}")
+# # Calculate similarity
+# similarity = cosine_sim(embedding1, embedding2)
+# print(f"Cosine Similarity: {similarity}")
+
+import nltk
+nltk.download('averaged_perceptron_tagger')
+from nltk import ngrams
+from nltk.tokenize import word_tokenize
+from nltk import pos_tag
+
+# Function to extract n-grams
+def extract_ngrams(text, num):
+    # Tokenize the text
+    tokens = word_tokenize(text)
+    # Generate n-grams
+    n_grams = list(ngrams(tokens, num))
+    return n_grams
+
+# Function to identify noun phrases
+def identify_noun_phrases(ngrams):
+    noun_phrases = []
+    for gram in ngrams:
+        # POS tag the n-gram
+        tags = pos_tag(gram)
+        # Check if the n-gram is a noun phrase (e.g., all words are nouns or adjectives followed by nouns)
+        if all(tag in ('NN', 'NNS', 'NNP', 'NNPS', 'JJ') for word, tag in tags):
+            noun_phrases.append(' '.join(gram))
+    return noun_phrases
+
+# Example text
+text = "Bottle bot up to me and I will give you a bottle of water."
+
+# Extract n-grams and identify noun phrases
+for n in range(2, 4):  # Using 2-grams and 3-grams for this example
+    ngrams_list = extract_ngrams(text, n)
+    noun_phrases = identify_noun_phrases(ngrams_list)
+    print(f"{n}-grams: {ngrams_list}")
+    print(f"Noun phrases from {n}-grams: {noun_phrases}")
