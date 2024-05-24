@@ -12,6 +12,8 @@ import threading
 from subprocess import call
 from multiprocessing import Process
 nltk.data.path.append("./../nltk_data")
+from nltk.tokenize import word_tokenize
+from nltk import pos_tag
 
 def download_nltk_resources():
     if not os.path.exists("./../nltk_data/corpora/stopwords"):
@@ -20,6 +22,16 @@ def download_nltk_resources():
     if not os.path.exists("./../nltk_data/tokenizers/punkt"):
         print("Downloading punkt")
         nltk.download('punkt', download_dir="./../nltk_data")
+    if not os.path.exists("./../nltk_data/taggers/averaged_perceptron_tagger"): 
+        print("Downloading averaged_perceptron_tagger")   
+        nltk.download('averaged_perceptron_tagger')
+
+
+def extract_nouns(sentence):
+    words = word_tokenize(sentence)
+    tagged_words = pos_tag(words)
+    nouns = [word for word, tag in tagged_words if tag in ('NN', 'NNS', 'NNP', 'NNPS')]
+    return nouns
 
 
 def remove_stopwords(text):
@@ -80,6 +92,7 @@ class VirtualAssistant:
                 print(text)
                 # Make sure text contain object name, this is NER task, remove every word that is not an object name
                 # TODO
+                text = ' '.join(extract_nouns(text))
                 if text:    
                     if text in ["ok", "k", "okay"]:
                         # print("loop 1:", '\ntext: ', text, '\nprev: ', previous_text, '\ncmd: ', command)
