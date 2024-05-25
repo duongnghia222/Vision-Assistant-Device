@@ -72,15 +72,17 @@ def run():
         # Implement the functionalities for each mode
         if mode == 'finding':
             if not object_to_find:
-                object_to_find = virtual_assistant.receive_object()
+                object_to_find, conf_threshold = virtual_assistant.receive_object()
                 if object_to_find:
                     yolo.set_object_to_find([object_to_find])
                 print(object_to_find)
                 continue
             print("finding")
-            bbox, confidence = yolo.find_object(color_frame, default_conf_threshold, iou_threshold, max_det,
+            print("finding", object_to_find, default_conf_threshold)
+            bbox, confidence = yolo.find_object(color_frame, conf_threshold, iou_threshold, max_det,
                                                 is_visualize)
             print(bbox)
+
             if bbox:
                 # pass through another classifer to make sure the object is the one we want
                 # TODO: Implement classifier to classify the object
@@ -97,9 +99,9 @@ def run():
                     virtual_assistant.navigate_to_object(instruction, rotation_degrees, distance)
                     # cv2.destroyWindow("Instruction text")
                     last_navigate_to_object_time = time.time()
-                min_distance = 500
+                distance_threshold_finding =  min(distance_threshold, min_distance) - 100
                 obstacles = obstacles_detect(depth_frame, [screen_width // 4, 0,
-                                                           screen_width - screen_width // 4, screen_height], min_distance,
+                                                           screen_width - screen_width // 4, screen_height], distance_threshold_finding,
                                              size_threshold, color_frame)
                 direction, size, distance, obstacle_class, prob = get_obstacle_info(obstacles, classifier,
                                                                                     color_frame=color_frame,

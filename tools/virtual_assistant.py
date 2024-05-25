@@ -82,12 +82,12 @@ class VirtualAssistant:
         threading.Thread(target=run_on_separate_thread, args=(text,)).start()
 
     def receive_object(self):
-        command = None
+        object_to_find = None
         previous_text = None
         self.speak("What object do you want to find?")
         stream = self.audio.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=2048)
         stream.start_stream()
-        while not command:
+        while not object_to_find:
             data = stream.read(1024, exception_on_overflow=False)
             if self.recognizer.AcceptWaveform(data):
                 text = self.recognizer.Result()
@@ -110,7 +110,7 @@ class VirtualAssistant:
                             # self.speak("Please provide a command first")
                             print("Please provide a command first")
                         else:
-                            command = previous_text
+                            object_to_find = previous_text
                             break
                     elif text in ["exit", "quit", "stop", "cancel"]:
                         break
@@ -138,7 +138,8 @@ class VirtualAssistant:
 
         stream.stop_stream()
         stream.close()
-        return command
+        conf_threshold = 0.35 if object_to_find in self.o365 else 0.01
+        return object_to_find, conf_threshold
 
     def recognize_command(self, command_prompt="None", confirm_command="None"):
         choices = ["change mode to finding", "change mode to walking", "take note", "listen note",
