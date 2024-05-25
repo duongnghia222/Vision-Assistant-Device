@@ -170,7 +170,7 @@ from tools.virtual_assistant import VirtualAssistant
 import time
 # # Create a VirtualAssistant instance
 virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
-                                         words_per_minute=250, volume=0.9)
+                                         words_per_minute=150, volume=0.9)
 
 virtual_assistant.receive_object()
 

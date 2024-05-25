@@ -30,7 +30,7 @@ def download_nltk_resources():
 def extract_nouns(sentence):
     words = word_tokenize(sentence)
     tagged_words = pos_tag(words)
-    nouns = [word for word, tag in tagged_words if tag in ('NN', 'NNS', 'NNP', 'NNPS')]
+    nouns = [word for word, tag in tagged_words if tag in ('NN', 'NNS')]
     return nouns
 
 
@@ -68,7 +68,7 @@ class VirtualAssistant:
         download_nltk_resources()
 
         # Load from the file
-        with open("../o365.txt", "r") as file:
+        with open("o365.txt", "r") as file:
             self.o365 = file.read().splitlines()
         
         
@@ -85,23 +85,24 @@ class VirtualAssistant:
         command = None
         previous_text = None
         self.speak("What object do you want to find?")
-        print(self.o365)
         stream = self.audio.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=2048)
         stream.start_stream()
         while not command:
             data = stream.read(1024, exception_on_overflow=False)
             if self.recognizer.AcceptWaveform(data):
                 text = self.recognizer.Result()
-                print(text)
+                
                 text = text[14:-3].lower().strip()
+                print("raw text:", text)
                 text = remove_stopwords(text)
-                print(text)
+                print("removed stop word:", text)
                 # remove duplicates
                 text = ' '.join(dict.fromkeys(text.split()))
-                print(text)
+                print("removed duplicates:", text)
                 # Make sure text contain object name, this is NER task, remove every word that is not an object name
                 # TODO
                 text = ' '.join(extract_nouns(text))
+                print("extracted nouns:", text)
                 if text:    
                     if text in ["ok", "k", "okay"]:
                         # print("loop 1:", '\ntext: ', text, '\nprev: ', previous_text, '\ncmd: ', command)
@@ -115,10 +116,22 @@ class VirtualAssistant:
                         break
                     else:
                         # print("loop 2:", '\ntext: ', text, '\nprev: ', previous_text, '\ncmd: ', command)
-                        previous_text = text
-                        # self.speak(f"You want to {confirm_command} {text}! Say 'ok' to confirm")
-                        self.speak(f"You want to find {text}?")
-                        print(f"You want to find {text}?")
+                        if not previous_text:
+                            print("first time")
+                            choice = process.extractOne(text, self.o365)
+                            confidence = choice[1]
+                            # self.speak(f"You want to {confirm_command} {text}! Say 'ok' to confirm")
+                            if confidence > 55:
+                                previous_text = choice[0]
+                                self.speak(f"You want to find {text}? Say 'ok' to confirm")
+                                print(f"---> You want to find {text}?")
+                                print(confidence)
+                        else:
+                            previous_text = text
+                            self.speak(f"You want to find {text}? Say 'ok' to confirm")
+                            print(f"---> You want to find {text}?")
+
+                        
                 else:
                     self.speak("Say it again")
                     print("Say it again")
