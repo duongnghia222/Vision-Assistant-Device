@@ -9,6 +9,7 @@ import json
 from tools.realsense_camera import RealsenseCamera
 import cv2
 import numpy as np
+from tools.virtual_assistant import VirtualAssistant
 
 # rs_camera = RealsenseCamera(width=640, height=480) # This is max allowed
 # print("Starting RealSense camera. Press 'q' to quit.")
@@ -165,13 +166,13 @@ import numpy as np
 # print("Similarity Score2:", similarity_score2)
 
 
-# from tools.virtual_assistant import VirtualAssistant
-# import time
-# # # Create a VirtualAssistant instance
-# virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
-#                                          words_per_minute=250, volume=0.9)
+from tools.virtual_assistant import VirtualAssistant
+import time
+# # Create a VirtualAssistant instance
+virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
+                                         words_per_minute=250, volume=0.9)
 
-# virtual_assistant.hey_virtual_assistant(first_run=True)
+virtual_assistant.receive_object()
 
 
 
@@ -269,37 +270,40 @@ import numpy as np
 # similarity = cosine_sim(embedding1, embedding2)
 # print(f"Cosine Similarity: {similarity}")
 
-import nltk
-nltk.download('averaged_perceptron_tagger')
-from nltk import ngrams
-from nltk.tokenize import word_tokenize
-from nltk import pos_tag
+# import nltk
+# nltk.download('averaged_perceptron_tagger')
+# from nltk import ngrams
+# from nltk.tokenize import word_tokenize
+# from nltk import pos_tag
 
-# Function to extract n-grams
-def extract_ngrams(text, num):
-    # Tokenize the text
-    tokens = word_tokenize(text)
-    # Generate n-grams
-    n_grams = list(ngrams(tokens, num))
-    return n_grams
+# # Function to extract n-grams
+# def extract_ngrams(text, num):
+#     # Tokenize the text
+#     tokens = word_tokenize(text)
+#     # Generate n-grams
+#     n_grams = list(ngrams(tokens, num))
+#     return n_grams
 
-# Function to identify noun phrases
-def identify_noun_phrases(ngrams):
-    noun_phrases = []
-    for gram in ngrams:
-        # POS tag the n-gram
-        tags = pos_tag(gram)
-        # Check if the n-gram is a noun phrase (e.g., all words are nouns or adjectives followed by nouns)
-        if all(tag in ('NN', 'NNS', 'NNP', 'NNPS', 'JJ') for word, tag in tags):
-            noun_phrases.append(' '.join(gram))
-    return noun_phrases
+# # Function to identify noun phrases
+# def identify_noun_phrases(ngrams):
+#     noun_phrases = []
+#     for gram in ngrams:
+#         # POS tag the n-gram
+#         tags = pos_tag(gram)
+#         # Check if the n-gram is a noun phrase (e.g., all words are nouns or adjectives followed by nouns)
+#         if all(tag in ('NN', 'NNS', 'NNP', 'NNPS', 'JJ') for word, tag in tags):
+#             noun_phrases.append(' '.join(gram))
+#     return noun_phrases
 
-# Example text
-text = "Bottle bot up to me and I will give you a bottle of water."
+# # Example text
+# text = "Bottle bot up to me and I will give you a bottle of water."
 
-# Extract n-grams and identify noun phrases
-for n in range(2, 4):  # Using 2-grams and 3-grams for this example
-    ngrams_list = extract_ngrams(text, n)
-    noun_phrases = identify_noun_phrases(ngrams_list)
-    print(f"{n}-grams: {ngrams_list}")
-    print(f"Noun phrases from {n}-grams: {noun_phrases}")
+# # Extract n-grams and identify noun phrases
+# for n in range(2, 4):  # Using 2-grams and 3-grams for this example
+#     ngrams_list = extract_ngrams(text, n)
+#     noun_phrases = identify_noun_phrases(ngrams_list)
+#     print(f"{n}-grams: {ngrams_list}")
+#     print(f"Noun phrases from {n}-grams: {noun_phrases}")
+
+
+

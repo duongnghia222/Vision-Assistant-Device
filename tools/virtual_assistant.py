@@ -49,6 +49,10 @@ def run_on_separate_thread(text):
     print("stopped", text)
 
 
+
+
+
+
 class VirtualAssistant:
     def __init__(self, recognizer_model_path, rs_camera, words_per_minute=150, volume=0.9):
         self.recognizer_model_path = recognizer_model_path
@@ -62,6 +66,10 @@ class VirtualAssistant:
         self.engine.setProperty('rate', words_per_minute)
         self.engine.setProperty('volume', volume)
         download_nltk_resources()
+
+        # Load from the file
+        with open("../o365.txt", "r") as file:
+            self.o365 = file.read().splitlines()
         
         
     def speak(self, text):
@@ -77,6 +85,7 @@ class VirtualAssistant:
         command = None
         previous_text = None
         self.speak("What object do you want to find?")
+        print(self.o365)
         stream = self.audio.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=2048)
         stream.start_stream()
         while not command:
