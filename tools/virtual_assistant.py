@@ -7,13 +7,15 @@ from nltk.tokenize import word_tokenize
 import os
 from thefuzz import process
 import datetime
-from tools.classifier import WeatherClassifier
+from tools.classifier import Classifier
 import threading
 from subprocess import call
 from multiprocessing import Process
 nltk.data.path.append("./../nltk_data")
 from nltk.tokenize import word_tokenize
 from nltk import pos_tag
+from huggingface_hub import hf_hub_download
+
 
 def download_nltk_resources():
     if not os.path.exists("./../nltk_data/corpora/stopwords"):
@@ -245,13 +247,48 @@ class VirtualAssistant:
 
 
     def weather_classify(self):
-        weather_classifier = WeatherClassifier("models/vit-base-patch16-224-in21k-weather-images-classification")
+        weather_classifier = Classifier("models/vit-base-patch16-224-in21k-weather-images-classification")
         ret, color_frame, _, _ = self.rs_camera.get_frame_stream()
         if not ret:
             print("Error: Could not read frame.")
             return
         class_label, prob = weather_classifier.predict(color_frame)
         print(class_label, prob)
+        del weather_classifier
+
+    
+    def traffic_sign_classify(self):
+        model_path = "models/traffic-sign-classifier"
+        if not os.path.exists(os.path.join(model_path, "model.safetensors")):
+            # download the model using huggingface cli
+            hf_hub_download(repo_id="dima806/traffic_sign_detection", filename="model.safetensors")
+        traffic_sign_classifier = Classifier(model_path)
+        ret, color_frame, _, _ = self.rs_camera.get_frame_stream()
+        if not ret:
+            print("Error: Could not read frame.")
+            return
+        class_label, prob = traffic_sign_classifier.predict(color_frame)
+        print(class_label, prob)
+        del traffic_sign_classifier
+        
+
+
+    def food_classify(self):
+        model_path = "models/food-classifier"
+        if not os.path.exists(os.path.join(model_path, "pytorch_model.bin")):
+            # download the model using huggingface cli
+            hf_hub_download(repo_id="nateraw/food", filename="pytorch_model.bin")
+        food_classifier = Classifier(model_path)
+        ret, color_frame, _, _ = self.rs_camera.get_frame_stream()
+        if not ret:
+            print("Error: Could not read frame.")
+            return
+        class_label, prob = food_classifier.predict(color_frame)
+        if prob > 0.5:
+            self.speak(f"I see a {class_label} with {int(prob * 100)} percent confidence.")
+            print(f"I see a {class_label} with {int(prob * 100)} percent confidence.")
+        del food_classifier
+
 
     def hey_virtual_assistant(self, first_run):
         mode = "assistant"

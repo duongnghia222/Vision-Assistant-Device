@@ -7,7 +7,7 @@ import json
 import sys
 import os.path as osp
 from tools.yolo_world import YoloWorld
-from tools.classifier import Classifier
+from tools.classifier import ObjectClassifier
 from tools.instruction import get_object_info, get_obstacle_info
 from tools.virtual_assistant import VirtualAssistant
 virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
@@ -84,7 +84,7 @@ def run():
             print(bbox)
 
             if bbox:
-                # pass through another classifer to make sure the object is the one we want
+                # pass through another classifier to make sure the object is the one we want
                 # TODO: Implement classifier to classify the object
                 object_mask, depth = segment_object(depth_frame, bbox)
                 instruction, rotation_degrees, distance = get_object_info(bbox, depth, min_distance, color_frame,
@@ -187,7 +187,7 @@ def load_system():
     screen_height = settings.get('screen_height', 480)
     yolo = YoloWorld(yolo_world_path)
     rs_camera = RealsenseCamera(width=screen_width, height=screen_height)
-    classifier = Classifier(model_path=classifier_path, visualize=False)
+    classifier = ObjectClassifier(model_path=classifier_path, visualize=False)
     return yolo, classifier, rs_camera, settings
 
 

@@ -3,9 +3,11 @@ from torch.nn import functional as F
 from PIL import Image
 from transformers import AutoImageProcessor, ResNetForImageClassification, AutoModelForImageClassification
 import cv2
+import os
 
 
-class Classifier:
+
+class ObjectClassifier:
     # Initialize the classifier
     def __init__(self, model_path, visualize=True):
         self.classifier = ResNetForImageClassification.from_pretrained(model_path)
@@ -46,7 +48,7 @@ class Classifier:
         return class_labels, topk_probs
 
 
-class WeatherClassifier:
+class Classifier:
     # Initialize the classifier
     def __init__(self, model_path):
         self.classifier = AutoModelForImageClassification.from_pretrained(model_path)
@@ -67,6 +69,7 @@ class WeatherClassifier:
         top_prob, top_index = torch.max(probs, dim=-1)
         class_label = self.classifier.config.id2label[top_index.item()]
         return class_label, top_prob.item()
+    
 
 
 
