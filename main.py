@@ -80,7 +80,6 @@ def run():
             print("finding", object_to_find, conf_threshold)
             bbox, confidence = yolo.find_object(color_frame, conf_threshold, iou_threshold, max_det,
                                                 is_visualize)
-            print(bbox)
 
             if bbox:
                 # pass through another classifier to make sure the object is the one we want
