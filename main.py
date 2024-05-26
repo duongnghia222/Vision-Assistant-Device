@@ -42,7 +42,7 @@ def run():
     time_between_inform_obstacle_finding = settings.get('time_between_inform_obstacle_finding', 7)
     time_between_navigation = settings.get('time_between_navigation', 7)
 
-    yolo.set_object_to_find([object_to_find])  # Delete after debug
+    # yolo.set_object_to_find([object_to_find])  # Delete after debug
     # virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", rs_camera,
     #                                      words_per_minute=assistant_words_per_minute, volume=assistant_volume)
     fps = FPS(nsamples=fps_n_samples)
