@@ -262,13 +262,15 @@ class VirtualAssistant:
         if not os.path.exists(os.path.join(model_path, "model.safetensors")):
             # download the model using huggingface cli
             hf_hub_download(repo_id="dima806/traffic_sign_detection", filename="model.safetensors")
-        traffic_sign_classifier = Classifier(model_path)
+        traffic_sign_classifier = Classifier(model_path, use_safetensor=True)
         ret, color_frame, _, _ = self.rs_camera.get_frame_stream()
         if not ret:
             print("Error: Could not read frame.")
             return
         class_label, prob = traffic_sign_classifier.predict(color_frame)
-        print(class_label, prob)
+        if prob > 0.5:
+            self.speak(f"I see a {class_label} with {int(prob * 100)} percent confidence.")
+            print(f"I see a {class_label} with {int(prob * 100)} percent confidence.")
         del traffic_sign_classifier
         
 

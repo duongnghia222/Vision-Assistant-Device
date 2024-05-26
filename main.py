@@ -77,8 +77,7 @@ def run():
                     yolo.set_object_to_find([object_to_find])
                 print(object_to_find)
                 continue
-            print("finding")
-            print("finding", object_to_find, default_conf_threshold)
+            print("finding", object_to_find, conf_threshold)
             bbox, confidence = yolo.find_object(color_frame, conf_threshold, iou_threshold, max_det,
                                                 is_visualize)
             print(bbox)
