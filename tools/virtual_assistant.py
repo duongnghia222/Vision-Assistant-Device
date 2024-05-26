@@ -285,6 +285,9 @@ class VirtualAssistant:
         if prob > 0.5:
             self.speak(f"I see a {class_label} with {int(prob * 100)} percent confidence.")
             print(f"I see a {class_label} with {int(prob * 100)} percent confidence.")
+        else:
+            self.speak("I could not detect any traffic sign.")
+            print("I could not detect any traffic sign.")
         del traffic_sign_classifier
         
 
@@ -303,6 +306,9 @@ class VirtualAssistant:
         if prob > 0.5:
             self.speak(f"I see a {class_label} with {int(prob * 100)} percent confidence.")
             print(f"I see a {class_label} with {int(prob * 100)} percent confidence.")
+        else:
+            self.speak("I could not detect any food.")
+            print("I could not detect any food.")
         del food_classifier
 
 
