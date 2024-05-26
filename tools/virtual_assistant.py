@@ -258,7 +258,7 @@ class VirtualAssistant:
         model_path = "models/vit-base-patch16-224-in21k-weather-images-classification"
         if not os.path.exists(os.path.join(model_path, "pytorch_model.bin")):
             # download the model using huggingface cli
-            hf_hub_download(repo_id="DunnBC22/vit-base-patch16-224-in21k-weather-images-classification", filename="pytorch_model.bin", output_dir=model_path)
+            hf_hub_download(repo_id="DunnBC22/vit-base-patch16-224-in21k-weather-images-classification", filename="pytorch_model.bin", local_dir=model_path)
         weather_classifier = Classifier(model_path)
         ret, color_frame, _, _ = self.rs_camera.get_frame_stream()
         if not ret:
@@ -273,7 +273,7 @@ class VirtualAssistant:
         model_path = "models/traffic-sign-classifier"
         if not os.path.exists(os.path.join(model_path, "model.safetensors")):
             # download the model using huggingface cli
-            hf_hub_download(repo_id="dima806/traffic_sign_detection", filename="model.safetensors", output_dir=model_path)
+            hf_hub_download(repo_id="dima806/traffic_sign_detection", filename="model.safetensors", local_dir=model_path)
         traffic_sign_classifier = Classifier(model_path, use_safetensor=True)
         ret, color_frame, _, _ = self.rs_camera.get_frame_stream()
         if not ret:
@@ -291,7 +291,7 @@ class VirtualAssistant:
         model_path = "models/food-classifier"
         if not os.path.exists(os.path.join(model_path, "pytorch_model.bin")):
             # download the model using huggingface cli
-            hf_hub_download(repo_id="nateraw/food", filename="pytorch_model.bin", output_dir=model_path)
+            hf_hub_download(repo_id="nateraw/food", filename="pytorch_model.bin", local_dir=model_path)
         food_classifier = Classifier(model_path)
         ret, color_frame, _, _ = self.rs_camera.get_frame_stream()
         if not ret:
