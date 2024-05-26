@@ -352,3 +352,7 @@ class VirtualAssistant:
         self.audio.terminate()
         print("Virtual Assistant closed")
 
+
+if __name__ == "__main__":
+    pass
+
