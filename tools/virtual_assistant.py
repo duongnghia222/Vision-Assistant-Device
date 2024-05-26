@@ -77,8 +77,10 @@ class VirtualAssistant:
     def speak(self, text):
         self.engine.say(text)
         self.engine.runAndWait()
-        
 
+    def set_rs_camera(self, rs_camera):
+        self.rs_camera = rs_camera
+        
 
     def speak_threading(self, text):
         threading.Thread(target=run_on_separate_thread, args=(text,)).start()

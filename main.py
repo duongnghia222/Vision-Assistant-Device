@@ -10,6 +10,8 @@ from tools.yolo_world import YoloWorld
 from tools.classifier import ObjectClassifier
 from tools.instruction import get_object_info, get_obstacle_info
 from tools.virtual_assistant import VirtualAssistant
+virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
+                                         words_per_minute=120, volume=0.9)
 from tools.FPS import FPS
 from tools.realsense_camera import *
 from tools.custom_segmentation import segment_object
@@ -184,12 +186,11 @@ def load_system():
     yolo = YoloWorld(yolo_world_path)
     rs_camera = RealsenseCamera(width=screen_width, height=screen_height)
     classifier = ObjectClassifier(model_path=classifier_path, visualize=False)
-    virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", rs_camera,
-                                         words_per_minute=120, volume=0.9)
-    return yolo, classifier, rs_camera, settings, virtual_assistant
+    virtual_assistant.set_rs_camera(rs_camera)
+    return yolo, classifier, rs_camera, settings
 
 
 if __name__ == "__main__":
     # voice.speak("Please wait for system to start")
-    yolo, classifier, rs_camera, settings, virtual_assistant = load_system()
+    yolo, classifier, rs_camera, settings = load_system()
     run()
