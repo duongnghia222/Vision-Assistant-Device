@@ -190,11 +190,19 @@ class VirtualAssistant:
                             previous_text = choice[0]
                             if previous_text == "what time is it":
                                 self.speak("You want to know the current time! Say 'ok' to confirm")
+                                print("You want to know the current time! Say 'ok' to confirm")
                             elif previous_text == "what's the weather like":
                                 self.speak("You want to know the current weather! Say 'ok' to confirm")
+                                print("You want to know the current weather! Say 'ok' to confirm")
+                            elif previous_text == "what's the traffic sign":
+                                self.speak("You want to know the traffic sign! Say 'ok' to confirm")
+                                print("You want to know the traffic sign! Say 'ok' to confirm")
+                            elif previous_text == "what's this food":
+                                self.speak("You want to know what food this is! Say 'ok' to confirm")
+                                print("You want to know what food this is! Say 'ok' to confirm")
                             else:
                                 self.speak(f"You want to {previous_text}! Say 'ok' to confirm")
-                            print(f"You want to {previous_text}! Say 'ok' to confirm")
+                                print(f"You want to {previous_text}! Say 'ok' to confirm")
                             print(confidence)
                         else:
                             print("I didn't catch that")
@@ -247,7 +255,11 @@ class VirtualAssistant:
 
 
     def weather_classify(self):
-        weather_classifier = Classifier("models/vit-base-patch16-224-in21k-weather-images-classification")
+        model_path = "models/vit-base-patch16-224-in21k-weather-images-classification"
+        if not os.path.exists(os.path.join(model_path, "pytorch_model.bin")):
+            # download the model using huggingface cli
+            hf_hub_download(repo_id="DunnBC22/vit-base-patch16-224-in21k-weather-images-classification", filename="pytorch_model.bin", output_dir=model_path)
+        weather_classifier = Classifier(model_path)
         ret, color_frame, _, _ = self.rs_camera.get_frame_stream()
         if not ret:
             print("Error: Could not read frame.")
@@ -261,7 +273,7 @@ class VirtualAssistant:
         model_path = "models/traffic-sign-classifier"
         if not os.path.exists(os.path.join(model_path, "model.safetensors")):
             # download the model using huggingface cli
-            hf_hub_download(repo_id="dima806/traffic_sign_detection", filename="model.safetensors")
+            hf_hub_download(repo_id="dima806/traffic_sign_detection", filename="model.safetensors", output_dir=model_path)
         traffic_sign_classifier = Classifier(model_path, use_safetensor=True)
         ret, color_frame, _, _ = self.rs_camera.get_frame_stream()
         if not ret:
@@ -279,7 +291,7 @@ class VirtualAssistant:
         model_path = "models/food-classifier"
         if not os.path.exists(os.path.join(model_path, "pytorch_model.bin")):
             # download the model using huggingface cli
-            hf_hub_download(repo_id="nateraw/food", filename="pytorch_model.bin")
+            hf_hub_download(repo_id="nateraw/food", filename="pytorch_model.bin", output_dir=model_path)
         food_classifier = Classifier(model_path)
         ret, color_frame, _, _ = self.rs_camera.get_frame_stream()
         if not ret:
