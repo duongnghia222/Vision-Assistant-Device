@@ -51,8 +51,8 @@ class ObjectClassifier:
 class Classifier:
     # Initialize the classifier
     def __init__(self, model_path, use_safetensor=False):
-        self.classifier = AutoModelForImageClassification.from_pretrained(model_path, use_safetensor=use_safetensor)
-        self.image_processor = AutoImageProcessor.from_pretrained(model_path, use_safetensor=use_safetensor)
+        self.classifier = AutoModelForImageClassification.from_pretrained(model_path, use_safetensors=use_safetensor)
+        self.image_processor = AutoImageProcessor.from_pretrained(model_path, use_safetensors=use_safetensor)
 
     def process_image(self, frame):
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
