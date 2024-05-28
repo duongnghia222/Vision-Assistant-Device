@@ -97,7 +97,8 @@ def run():
                     virtual_assistant.navigate_to_object(instruction, rotation_degrees, distance)
                     # cv2.destroyWindow("Instruction text")
                     last_navigate_to_object_time = time.time()
-                distance_threshold_finding =  min(distance_threshold, min_distance) - 100
+                if distance < min_distance:
+                    distance_threshold_finding =  min(distance_threshold, min_distance) - 100
                 obstacles = obstacles_detect(depth_frame, [screen_width // 4, 0,
                                                            screen_width - screen_width // 4, screen_height], distance_threshold_finding,
                                              size_threshold, color_frame)

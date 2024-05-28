@@ -47,9 +47,13 @@ def get_obstacle_info(obstacles, classifier, color_frame, visualize=False, use_c
 
     # draw obstacles on depth frame
     if visualize:
+        skip = False
         for obstacle in obstacles:
+            if skip:
+                break
             cv2.rectangle(color_frame, (obstacle['coordinates'][0], obstacle['coordinates'][1]),
                           (obstacle['coordinates'][2], obstacle['coordinates'][3]), (0, 0, 255), 2)
+            skip = True
     return direction, size, distance, obstacle_class, prob
 
 
