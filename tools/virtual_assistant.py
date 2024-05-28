@@ -142,7 +142,7 @@ class VirtualAssistant:
 
         stream.stop_stream()
         stream.close()
-        conf_threshold = 0.35 if object_to_find in self.o365 else 0.01
+        conf_threshold = 0.35 if object_to_find in self.o365 or object_to_find in self.o365.lower() else 0.01
         return object_to_find, conf_threshold
 
     def recognize_command(self, command_prompt="None", confirm_command="None"):
