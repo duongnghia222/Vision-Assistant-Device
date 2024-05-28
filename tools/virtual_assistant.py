@@ -142,7 +142,7 @@ class VirtualAssistant:
 
         stream.stop_stream()
         stream.close()
-        conf_threshold = 0.35 if object_to_find in self.o365 or object_to_find in self.o365.lower() else 0.01
+        conf_threshold = 0.25 if object_to_find in self.o365 or object_to_find in self.o365.lower() else 0.01
         return object_to_find, conf_threshold
 
     def recognize_command(self, command_prompt="None", confirm_command="None"):
@@ -342,14 +342,18 @@ class VirtualAssistant:
                 self.listen_note()
         return mode
 
-    def navigate_to_object(self, instruction, rotation_degrees, distance):
+    def navigate_to_object(self, instruction, rotation_degrees, distance, withRotate=False):
         if instruction == "stop":
             self.speak_threading(instruction)
         elif instruction == "straight":
             self.speak_threading(instruction + "      at " + str(round(distance / 1000, 1)) + " meters")
         else:
-            self.speak_threading(instruction + "      at " + str(rotation_degrees) + " degrees. And" +
+            if withRotate:
+                self.speak_threading(instruction + "      at " + str(rotation_degrees) + " degrees and" +
                        str(round(distance / 1000, 1)) + " meters")
+            else:
+                self.speak_threading(instruction + "      at " + str(round(distance / 1000, 1)) + " meters")
+
 
     def inform_obstacle_location(self, direction, size, obstacle_class, prob):
         self.speak_threading(f"{size} obstacle on {direction}")

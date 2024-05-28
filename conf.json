@@ -17,6 +17,6 @@
   "size_threshold": 15000,
   "covering_duration_threshold": 2,
   "time_between_inform_obstacle" : 7,
-  "time_between_inform_obstacle_finding" : 10,
-  "time_between_navigation" : 15
+  "time_between_inform_obstacle_finding" : 3,
+  "time_between_navigation" : 7
 }
