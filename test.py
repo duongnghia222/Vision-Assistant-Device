@@ -172,7 +172,10 @@ import time
 virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
                                          words_per_minute=150, volume=0.9)
 
-virtual_assistant.receive_object()
+virtual_assistant.speak_threading("hello one")
+virtual_assistant.speak_threading("hello two")
+virtual_assistant.speak_threading("hello three")
+
 
 
 
