@@ -170,14 +170,29 @@ from tools.virtual_assistant import VirtualAssistant
 import time
 import pyttsx3
 # # Create a VirtualAssistant instance
-# virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
-#                                          words_per_minute=150, volume=0.9)
+virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
+                                         words_per_minute=150, volume=0.9)
 
-# virtual_assistant.speak_threading("Hello, I am your virtual assistant one. How can I help you today?")
-# print("Hello, I am your virtual assistant one. How can I help you today?")
-# for i in range(100):
-#     virtual_assistant.speak_threading(f"Hello, I am your virtual assistant {i}. How can I help you today?")
 
+# virtual_assistant.speak_subprocess(f"Hello, I am your virtual assistant two. How can I help you today?")
+# print(f"Hello, I am your virtual assistant two. How can I help you today?")
+# virtual_assistant.speak_subprocess("Hello, I am your virtual assistant three. How can I help you today?")
+# print("Hello, I am your virtual assistant three. How can I help you today?")
+# virtual_assistant.speak_subprocess("Hello, I am your virtual assistant four. How can I help you today?")
+# print("Hello, I am your virtual assistant four. How can I help you today?")
+# virtual_assistant.speak_subprocess("Hello, I am your virtual assistant five. How can I help you today?")
+# print("Hello, I am your virtual assistant five. How can I help you today?")
+# virtual_assistant.speak_subprocess("Hello, I am your virtual assistant six. How can I help you today?")
+# print("Hello, I am your virtual assistant six. How can I help you today?")
+
+virtual_assistant.speak_threading("Hello, I am your virtual assistant seven. How can I help you today?")
+print("Hello, I am your virtual assistant seven. How can I help you today?")
+virtual_assistant.speak_threading("Hello, I am your virtual assistant eight. How can I help you today?")
+print("Hello, I am your virtual assistant eight. How can I help you today?")
+
+
+for i in range(10):
+    print(i)
 
 # engine = pyttsx3.init()
 # def onStart(name):
@@ -230,26 +245,26 @@ import pyttsx3
 # def onWord(name, location, length):
 #     print(f"word {name} {location} {length}")
 
-def onEnd(name, completed):
-    print(f"finishing {name}, completed: {completed}")
-    if name == 'fox':
-        engine.say('What a lazy dog!', 'dog')
-    elif name == 'dog':
-        engine.endLoop()
+# def onEnd(name, completed):
+#     print(f"finishing {name}, completed: {completed}")
+#     if name == 'fox':
+#         engine.say('What a lazy dog!', 'dog')
+#     elif name == 'dog':
+#         engine.endLoop()
 
-# Initialize the TTS engine
-engine = pyttsx3.init()
+# # Initialize the TTS engine
+# engine = pyttsx3.init()
 
-# Connect the callbacks to the engine
-# engine.connect('started-utterance', onStart)
-# engine.connect('started-word', onWord)
-engine.connect('finished-utterance', onEnd)
+# # Connect the callbacks to the engine
+# # engine.connect('started-utterance', onStart)
+# # engine.connect('started-word', onWord)
+# engine.connect('finished-utterance', onEnd)
 
-# Queue commands to speak text
-engine.say('The quick brown fox jumped over the lazy dog.', 'dog')
+# # Queue commands to speak text
+# engine.say('The quick brown fox jumped over the lazy dog.', 'dog')
 
-# Start the event loop to process the speaking command and fire callbacks
-engine.startLoop()
+# # Start the event loop to process the speaking command and fire callbacks
+# engine.startLoop()
 
 
 

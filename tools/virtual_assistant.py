@@ -9,7 +9,7 @@ from thefuzz import process
 import datetime
 from tools.classifier import Classifier
 import threading
-from subprocess import call
+from subprocess import call, Popen
 from multiprocessing import Process
 nltk.data.path.append("./../nltk_data")
 from nltk.tokenize import word_tokenize
@@ -44,9 +44,7 @@ def remove_stopwords(text):
     return filtered_text
 
 def run_on_separate_thread(text):
-    tim1 = time.time()
     engine = pyttsx3.init()
-    print("time to init engine", time.time() - tim1)
     engine.say(text)
     engine.runAndWait()
     engine.stop()  
@@ -69,6 +67,8 @@ class VirtualAssistant:
         with open("o365.txt", "r") as file:
             self.o365 = file.read().splitlines()
         
+    def speak_subprocess(self, text):
+        Popen(["python", "tools/speak.py", text])
         
     def speak(self, text):
         self.engine.say(text)
