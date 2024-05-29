@@ -85,6 +85,9 @@ def run():
                 # pass through another classifier to make sure the object is the one we want
                 # TODO: Implement classifier to classify the object
                 object_mask, depth = segment_object(depth_frame, bbox)
+                print("Avg depth:", depth)
+                if depth == 0:
+                    continue
                 instruction, rotation_degrees, distance = get_object_info(bbox, depth, min_distance, color_frame,
                                                                           is_visualize)
 
@@ -99,6 +102,8 @@ def run():
                     last_navigate_to_object_time = time.time()
                 if distance < min_distance:
                     distance_threshold_finding =  min(distance_threshold, min_distance) - 100
+                else :
+                    distance_threshold_finding = distance_threshold
                 obstacles = obstacles_detect(depth_frame, [screen_width // 4, 0,
                                                            screen_width - screen_width // 4, screen_height], distance_threshold_finding,
                                              size_threshold, color_frame)
