@@ -182,21 +182,22 @@ call(["python", "tools/speak.py", phrase])
 
 
 
-# virtual_assistant.speak_subprocess(f"Hello, I am your virtual assistant two. How can I help you today?")
-# print(f"Hello, I am your virtual assistant two. How can I help you today?")
-# virtual_assistant.speak_subprocess("Hello, I am your virtual assistant three. How can I help you today?")
-# print("Hello, I am your virtual assistant three. How can I help you today?")
-# virtual_assistant.speak_subprocess("Hello, I am your virtual assistant four. How can I help you today?")
-# print("Hello, I am your virtual assistant four. How can I help you today?")
-# virtual_assistant.speak_subprocess("Hello, I am your virtual assistant five. How can I help you today?")
-# print("Hello, I am your virtual assistant five. How can I help you today?")
-# virtual_assistant.speak_subprocess("Hello, I am your virtual assistant six. How can I help you today?")
-# print("Hello, I am your virtual assistant six. How can I help you today?")
+virtual_assistant.speak_subprocess(f"Hello, I am your virtual assistant two. How can I help you today?")
+print(f"Hello, I am your virtual assistant two. How can I help you today?")
+virtual_assistant.speak_subprocess("Hello, I am your virtual assistant three. How can I help you today?")
+print("Hello, I am your virtual assistant three. How can I help you today?")
+virtual_assistant.speak_subprocess("Hello, I am your virtual assistant four. How can I help you today?")
+print("Hello, I am your virtual assistant four. How can I help you today?")
+time.sleep(10)
+virtual_assistant.speak_subprocess("Hello, I am your virtual assistant five. How can I help you today?")
+print("Hello, I am your virtual assistant five. How can I help you today?")
+virtual_assistant.speak_subprocess("Hello, I am your virtual assistant six. How can I help you today?")
+print("Hello, I am your virtual assistant six. How can I help you today?")
 
-virtual_assistant.speak_threading("Hello, I am your virtual assistant seven. How can I help you today?")
-print("Hello, I am your virtual assistant seven. How can I help you today?")
-virtual_assistant.speak_threading("Hello, I am your virtual assistant eight. How can I help you today?")
-print("Hello, I am your virtual assistant eight. How can I help you today?")
+# virtual_assistant.speak_threading("Hello, I am your virtual assistant seven. How can I help you today?")
+# print("Hello, I am your virtual assistant seven. How can I help you today?")
+# virtual_assistant.speak_threading("Hello, I am your virtual assistant eight. How can I help you today?")
+# print("Hello, I am your virtual assistant eight. How can I help you today?")
 
 
 for i in range(10):
