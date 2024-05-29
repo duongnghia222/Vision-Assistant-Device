@@ -169,12 +169,15 @@ from tools.virtual_assistant import VirtualAssistant
 from tools.virtual_assistant import VirtualAssistant
 import time
 # # Create a VirtualAssistant instance
-virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
-                                         words_per_minute=150, volume=0.9)
+from subprocess import call
+phrase = "Hi everyone"
+call(["python", "tools/speak.py", phrase])
+# virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
+#                                          words_per_minute=150, volume=0.9)
 
-virtual_assistant.speak_threading("hello one")
-virtual_assistant.speak_threading("hello two")
-virtual_assistant.speak_threading("hello three")
+# virtual_assistant.speak_threading("hello one over")
+# virtual_assistant.speak_threading("hello two over")
+# virtual_assistant.run_on_separate_thread("hello three")
 
 
 

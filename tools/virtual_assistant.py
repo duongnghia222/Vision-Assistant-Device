@@ -57,31 +57,34 @@ class VirtualAssistant:
         self.engine_is_running = False
         self.engine.setProperty('rate', words_per_minute)
         self.engine.setProperty('volume', volume)
-        self.current_thread = None
         self.callback_event = threading.Event()
+        
         download_nltk_resources()
 
         # Load from the file
         with open("o365.txt", "r") as file:
             self.o365 = file.read().splitlines()
         
+    def on_speech_start(self, name, location):
+        self.callback_event.clear()
+
+    def on_speech_finish(self, name, completed):
+        if completed:
+            self.callback_event.set()
 
     def run_on_separate_thread(self, text):
-        self.engine.say(text)
-        self.engine.runAndWait()
-        self.engine.stop()
-        print(f"Stopped speaking: {text}")
+
+        self.engine.say(text, 'over')
+
+        # Start the event loop to process the speaking command and fire callbacks
+        self.engine.startLoop()
+        
 
     
-
-
     def speak_threading(self, text):
         thread = threading.Thread(target=self.run_on_separate_thread, args=(text,))
         thread.start()
 
-
-
-        
     def speak(self, text):
         self.engine.say(text)
         self.engine.runAndWait()
