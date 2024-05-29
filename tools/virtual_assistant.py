@@ -353,21 +353,21 @@ class VirtualAssistant:
 
     def navigate_to_object(self, instruction, rotation_degrees, distance, withRotate=False):
         if instruction == "stop":
-            self.speak_threading(instruction)
+            self.speak_subprocess(instruction)
         elif instruction == "straight":
-            self.speak_threading(instruction + "      at " + str(round(distance / 1000, 1)) + " meters")
+            self.speak_subprocess(instruction + "      at " + str(round(distance / 1000, 1)) + " meters")
         else:
             if withRotate:
-                self.speak_threading(instruction + "      at " + str(rotation_degrees) + " degrees and" +
+                self.speak_subprocess(instruction + "      at " + str(rotation_degrees) + " degrees and" +
                        str(round(distance / 1000, 1)) + " meters")
             else:
-                self.speak_threading(instruction + "      at " + str(round(distance / 1000, 1)) + " meters")
+                self.speak_subprocess(instruction + "      at " + str(round(distance / 1000, 1)) + " meters")
 
 
     def inform_obstacle_location(self, direction, size, obstacle_class, prob):
-        self.speak_threading(f"{size} obstacle on {direction}")
+        self.speak_subprocess(f"{size} obstacle on {direction}")
         if obstacle_class and prob:
-            self.speak_threading(f"Probably {obstacle_class}") #  with confidence {int(prob)} percent
+            self.speak_subprocess(f"Probably {obstacle_class}") #  with confidence {int(prob)} percent
 
     def close(self):
         self.audio.terminate()
