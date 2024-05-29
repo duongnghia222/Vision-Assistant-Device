@@ -36,8 +36,8 @@ def segment_object(depth_frame, roi, threshold_value=10):
 
     # Calculate the average depth where the mask is True
     if np.any(mask):
-        average_depth = np.mean(roi[mask])
+        average_depth = int(np.mean(roi[mask]))
     else:
         average_depth = None
 
-    return mask.astype(np.uint8) * 255, int(average_depth)  # Convert mask to 8-bit format
+    return mask.astype(np.uint8) * 255, average_depth  # Convert mask to 8-bit format
