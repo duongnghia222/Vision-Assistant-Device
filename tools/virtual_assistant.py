@@ -9,7 +9,7 @@ from thefuzz import process
 import datetime
 from tools.classifier import Classifier
 import threading
-from subprocess import call
+from subprocess import call, Popen
 from multiprocessing import Process
 nltk.data.path.append("./../nltk_data")
 from nltk.tokenize import word_tokenize
@@ -79,6 +79,8 @@ class VirtualAssistant:
         # Start the event loop to process the speaking command and fire callbacks
         self.engine.startLoop()
         
+    def speak_subprocess(self, text):
+        Popen(["python", "tools/speak.py", text])
 
     
     def speak_threading(self, text):
