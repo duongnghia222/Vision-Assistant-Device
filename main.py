@@ -159,7 +159,8 @@ def run():
             covering_detected = False
         # FPS counter
         t2 = time.time()
-        fps.update(1.0 / (t2 - t1))
+        if (t2 - t1) != 0:
+            fps.update(1.0 / (t2 - t1))
         avg_fps = fps.accumulate()
         cv2.putText(color_frame, f"FPS: {avg_fps:.2f}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1,
                     (0, 255, 0), 2)
