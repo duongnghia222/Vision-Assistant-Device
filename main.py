@@ -67,7 +67,17 @@ def run():
             pass
 
         if mode == 'off':
-            os.system("sudo shutdown now")
+            # if system is linux
+            if sys.platform.startswith('linux'):
+                os.system("sudo shutdown now")
+            elif sys.platform.startswith('win32'):
+                os.system("shutdown /s /t 1")
+            elif sys.platform.startswith('darwin'):
+                os.system("sudo shutdown -h now")
+            elif sys.platform.startswith('cygwin'):
+                os.system("shutdown -h now")
+            elif sys.platform.startswith('win'):
+                os.system("shutdown /s /t 1")
 
         # Implement the functionalities for each mode
         if mode == 'finding':
