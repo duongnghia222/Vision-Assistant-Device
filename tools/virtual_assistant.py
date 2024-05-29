@@ -50,11 +50,6 @@ def run_on_separate_thread(text):
     engine.stop()  
     print("stopped", text)
 
-
-
-
-
-
 class VirtualAssistant:
     def __init__(self, recognizer_model_path, rs_camera, words_per_minute=150, volume=0.9):
         self.recognizer_model_path = recognizer_model_path
