@@ -92,16 +92,10 @@ def run():
                                                                           is_visualize)
 
                 if time.time() - last_navigate_to_object_time >= time_between_navigation:
-                    # Destroy cv2 window named 'RealSense Camera Detection':
-                    # cv2.destroyWindow('RealSense Camera Detection')
-                    # display_text(f"{instruction}, {rotation_degrees}, {distance}", "Instruction text",
-                    # screen_width, screen_height)
-
                     virtual_assistant.navigate_to_object(instruction, rotation_degrees, distance)
-                    # cv2.destroyWindow("Instruction text")
                     last_navigate_to_object_time = time.time()
-                if distance < min_distance:
-                    distance_threshold_finding =  min(distance_threshold, min_distance) - 100
+                if distance < distance_threshold:
+                    distance_threshold_finding =  1
                 else :
                     distance_threshold_finding = distance_threshold
                 obstacles = obstacles_detect(depth_frame, [screen_width // 4, 0,
@@ -130,8 +124,6 @@ def run():
             print(direction, size, distance, obstacle_class, prob)
 
         if mode == "assistant":
-            print("Waiting to clean up everything")
-            time.sleep(2)
             object_to_find = None
             # command = virtual_assistant.hey_virtual_assistant()
             # print(command)
@@ -142,7 +134,6 @@ def run():
             mode = virtual_assistant.hey_virtual_assistant(first_run)
             first_run = False
             fps.reset()
-            print("Assistant mode")
             continue
 
 
