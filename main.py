@@ -54,7 +54,7 @@ def run():
     # Timer variable
     last_navigate_to_object_time = time.time()
     last_inform_obstacle_location_time = time.time()
-
+    last_distance = -1
     while True:
         t1 = time.time()
         ret, color_frame, depth_frame, frame_number = rs_camera.get_frame_stream()
@@ -90,15 +90,19 @@ def run():
             print("finding", object_to_find, conf_threshold)
             bbox, confidence = yolo.find_object(color_frame, conf_threshold, iou_threshold, max_det,
                                                 is_visualize)
+            # confidence = max_confidence * np.exp(-decay_rate * distance)
 
-            if bbox:
+            acceptable_confidence = 0.6 * np.exp(2 * last_distance) if last_distance > 0 else confidence
+            if bbox and confidence >= acceptable_confidence:
                 # pass through another classifier to make sure the object is the one we want
                 # TODO: Implement classifier to classify the object
-                object_mask, depth = segment_object(depth_frame, bbox)
-                print("Avg depth:", depth)
-                if depth == 0:
+                object_mask, distance = segment_object(depth_frame, bbox)
+                print("Avg distance:", distance)
+                if distance == 0:
                     continue
-                instruction, rotation_degrees, distance = get_object_info(bbox, depth, min_distance, color_frame,
+                last_distance = distance
+
+                instruction, rotation_degrees, distance = get_object_info(bbox, distance, min_distance, color_frame,
                                                                           is_visualize)
 
                 if time.time() - last_navigate_to_object_time >= time_between_navigation:
