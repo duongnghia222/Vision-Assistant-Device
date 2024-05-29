@@ -49,6 +49,7 @@ def run_on_separate_thread(text):
     engine.runAndWait()
     engine.stop()  
 
+
 class VirtualAssistant:
     def __init__(self, recognizer_model_path, rs_camera, words_per_minute=150, volume=0.9):
         self.recognizer_model_path = recognizer_model_path
@@ -61,15 +62,36 @@ class VirtualAssistant:
         self.engine_is_running = False
         self.engine.setProperty('rate', words_per_minute)
         self.engine.setProperty('volume', volume)
+        self.callback_event = threading.Event()
+        
         download_nltk_resources()
 
         # Load from the file
         with open("o365.txt", "r") as file:
             self.o365 = file.read().splitlines()
         
+    def on_speech_start(self, name, location):
+        self.callback_event.clear()
+
+    def on_speech_finish(self, name, completed):
+        if completed:
+            self.callback_event.set()
+
+    def run_on_separate_thread(self, text):
+
+        self.engine.say(text, 'over')
+
+        # Start the event loop to process the speaking command and fire callbacks
+        self.engine.startLoop()
+        
     def speak_subprocess(self, text):
         Popen(["python", "tools/speak.py", text])
-        
+
+    
+    def speak_threading(self, text):
+        thread = threading.Thread(target=self.run_on_separate_thread, args=(text,))
+        thread.start()
+
     def speak(self, text):
         self.engine.say(text)
         self.engine.runAndWait()
@@ -78,8 +100,6 @@ class VirtualAssistant:
         self.rs_camera = rs_camera
         
 
-    def speak_threading(self, text):
-        threading.Thread(target=run_on_separate_thread, args=(text,)).start()
 
     def receive_object(self):
         object_to_find = None
@@ -340,21 +360,21 @@ class VirtualAssistant:
 
     def navigate_to_object(self, instruction, rotation_degrees, distance, withRotate=False):
         if instruction == "stop":
-            self.speak_threading(instruction)
+            self.speak_subprocess(instruction)
         elif instruction == "straight":
-            self.speak_threading(instruction + "      at " + str(round(distance / 1000, 1)) + " meters")
+            self.speak_subprocess(instruction + "      at " + str(round(distance / 1000, 1)) + " meters")
         else:
             if withRotate:
-                self.speak_threading(instruction + "      at " + str(rotation_degrees) + " degrees and" +
+                self.speak_subprocess(instruction + "      at " + str(rotation_degrees) + " degrees and" +
                        str(round(distance / 1000, 1)) + " meters")
             else:
-                self.speak_threading(instruction + "      at " + str(round(distance / 1000, 1)) + " meters")
+                self.speak_subprocess(instruction + "      at " + str(round(distance / 1000, 1)) + " meters")
 
 
     def inform_obstacle_location(self, direction, size, obstacle_class, prob):
-        self.speak_threading(f"{size} obstacle on {direction}")
-        if obstacle_class and prob:
-            self.speak_threading(f"Probably {obstacle_class}") #  with confidence {int(prob)} percent
+        self.speak_subprocess(f"{size} obstacle on {direction}")
+        if obstacle_class and prob > 0.7:
+            self.speak_subprocess(f"Probably {obstacle_class}") #  with confidence {int(prob)} percent
 
     def close(self):
         self.audio.terminate()
