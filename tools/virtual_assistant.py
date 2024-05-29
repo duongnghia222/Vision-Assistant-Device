@@ -368,7 +368,7 @@ class VirtualAssistant:
 
     def inform_obstacle_location(self, direction, size, obstacle_class, prob):
         self.speak_subprocess(f"{size} obstacle on {direction}")
-        if obstacle_class and prob:
+        if obstacle_class and prob > 0.7:
             self.speak_subprocess(f"Probably {obstacle_class}") #  with confidence {int(prob)} percent
 
     def close(self):
