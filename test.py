@@ -168,11 +168,88 @@ from tools.virtual_assistant import VirtualAssistant
 
 from tools.virtual_assistant import VirtualAssistant
 import time
+import pyttsx3
 # # Create a VirtualAssistant instance
-virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
-                                         words_per_minute=150, volume=0.9)
+# virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
+#                                          words_per_minute=150, volume=0.9)
 
-virtual_assistant.receive_object()
+# virtual_assistant.speak_threading("Hello, I am your virtual assistant one. How can I help you today?")
+# print("Hello, I am your virtual assistant one. How can I help you today?")
+# for i in range(100):
+#     virtual_assistant.speak_threading(f"Hello, I am your virtual assistant {i}. How can I help you today?")
+
+
+# engine = pyttsx3.init()
+# def onStart(name):
+#    print('starting', name)
+# def onWord(name, location, length):
+#    print('word', name, location, length)
+# def onEnd(name, completed):
+#    print('finishing', name, completed)
+#    if name == 'fox':
+#       engine.say('What a lazy dog!', 'dog')
+#    elif name == 'dog':
+#       engine.endLoop()
+# engine = pyttsx3.init()
+# engine.connect('started-utterance', onStart)
+# engine.connect('started-word', onWord)
+# engine.connect('finished-utterance', onEnd)
+# engine.say('The quick brown fox jumped over the lazy dog.', 'fox')
+# engine.startLoop()
+
+# engine = pyttsx3.init()
+# engine.say('The quick brown fox jumped over the lazy dog.', 'fox')
+# engine.startLoop(False)
+# # engine.iterate() must be called inside externalLoop()
+# externalLoop()
+# engine.endLoop()
+
+# import pyttsx3
+# import time
+
+# def external_loop(engine):
+#     while engine.isBusy():
+#         time.sleep(0.1)  # This is a simple way to keep the loop running
+
+# # Initialize the engine
+# engine = pyttsx3.init()
+
+# # Queue the text to be spoken
+# print("This will print before the text is spoken.")
+# # engine.say("The quick brown fox jumped over the lazy dog.")
+
+
+# print("This will print after the text is spoken.")
+
+import pyttsx3
+
+# Define the callback functions
+# def onStart(name):
+#     print(f"starting {name}")
+
+# def onWord(name, location, length):
+#     print(f"word {name} {location} {length}")
+
+def onEnd(name, completed):
+    print(f"finishing {name}, completed: {completed}")
+    if name == 'fox':
+        engine.say('What a lazy dog!', 'dog')
+    elif name == 'dog':
+        engine.endLoop()
+
+# Initialize the TTS engine
+engine = pyttsx3.init()
+
+# Connect the callbacks to the engine
+# engine.connect('started-utterance', onStart)
+# engine.connect('started-word', onWord)
+engine.connect('finished-utterance', onEnd)
+
+# Queue commands to speak text
+engine.say('The quick brown fox jumped over the lazy dog.', 'dog')
+
+# Start the event loop to process the speaking command and fire callbacks
+engine.startLoop()
 
 
 

@@ -15,7 +15,7 @@ nltk.data.path.append("./../nltk_data")
 from nltk.tokenize import word_tokenize
 from nltk import pos_tag
 from huggingface_hub import hf_hub_download
-
+import time
 
 def download_nltk_resources():
     if not os.path.exists("./../nltk_data/corpora/stopwords"):
@@ -44,11 +44,12 @@ def remove_stopwords(text):
     return filtered_text
 
 def run_on_separate_thread(text):
+    tim1 = time.time()
     engine = pyttsx3.init()
+    print("time to init engine", time.time() - tim1)
     engine.say(text)
     engine.runAndWait()
     engine.stop()  
-    print("stopped", text)
 
 class VirtualAssistant:
     def __init__(self, recognizer_model_path, rs_camera, words_per_minute=150, volume=0.9):
