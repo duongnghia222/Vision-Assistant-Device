@@ -15,7 +15,7 @@ nltk.data.path.append("./../nltk_data")
 from nltk.tokenize import word_tokenize
 from nltk import pos_tag
 from huggingface_hub import hf_hub_download
-
+import time
 
 def download_nltk_resources():
     if not os.path.exists("./../nltk_data/corpora/stopwords"):
@@ -43,6 +43,11 @@ def remove_stopwords(text):
     filtered_text = ' '.join(filtered_words)
     return filtered_text
 
+def run_on_separate_thread(text):
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()
+    engine.stop()  
 
 
 class VirtualAssistant:
