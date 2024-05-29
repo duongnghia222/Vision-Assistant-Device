@@ -11,7 +11,7 @@ def obstacles_detect(depth_frame, roi, distance_threshold, size_threshold, color
     roi_depth_frame = depth_frame[ymin:ymax, xmin:xmax]
     obstacles = []
     # Threshold the depth values
-    mask = (roi_depth_frame < distance_threshold).astype(np.uint8) * 255
+    mask = ((roi_depth_frame < distance_threshold) & (roi_depth_frame != 0)).astype(np.uint8) * 255
 
     # Clustering mask into different obstacles
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
