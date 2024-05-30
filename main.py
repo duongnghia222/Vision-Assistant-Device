@@ -42,7 +42,7 @@ def run():
     time_between_inform_obstacle_finding = settings.get('time_between_inform_obstacle_finding', 7)
     time_between_navigation = settings.get('time_between_navigation', 7)
     time_between_navigation_simple = int(time_between_navigation*1.2)
-    # yolo.set_object_to_find([object_to_find])  # Delete after debug
+    yolo.set_object_to_find([object_to_find])  # Delete after debug
     # virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", rs_camera,
     #                                      words_per_minute=assistant_words_per_minute, volume=assistant_volume)
     fps = FPS(nsamples=fps_n_samples)
@@ -94,6 +94,7 @@ def run():
             # confidence = max_confidence * np.exp(-decay_rate * distance)
 
             acceptable_confidence = 0.6 * np.exp(2 * last_distance) if last_distance > 0 else confidence
+            print("Acceptable confidence:", acceptable_confidence)
             if bbox and confidence >= acceptable_confidence:
                 # pass through another classifier to make sure the object is the one we want
                 # TODO: Implement classifier to classify the object

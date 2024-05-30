@@ -107,6 +107,7 @@ class VirtualAssistant:
         self.speak("What object do you want to find?")
         stream = self.audio.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=2048)
         stream.start_stream()
+        print("Listening...")
         while not object_to_find:
             data = stream.read(1024, exception_on_overflow=False)
             if self.recognizer.AcceptWaveform(data):
@@ -143,8 +144,8 @@ class VirtualAssistant:
                             # self.speak(f"You want to {confirm_command} {text}! Say 'ok' to confirm")
                             if confidence > 55:
                                 previous_text = choice[0]
-                                self.speak(f"You want to find {text}? Say 'ok' to confirm")
-                                print(f"---> You want to find {text}?")
+                                self.speak(f"You want to find {previous_text}? Say 'ok' to confirm")
+                                print(f"---> You want to find {previous_text}?")
                                 print(confidence)
                         else:
                             previous_text = text

@@ -4,7 +4,7 @@
   "yolo_world_path": "yolov8l-worldv2.pt",
   "classifier_path": "models/resnet-50",
   "is_visualize": true,
-  "object_to_find": null,
+  "object_to_find": "bottle",
   "mode": "finding",
   "fps_n_samples": 50,
   "iou_threshold": 0.1,
