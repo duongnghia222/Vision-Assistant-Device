@@ -148,8 +148,8 @@ class VirtualAssistant:
                                 print(confidence)
                         else:
                             previous_text = text
-                            self.speak(f"You want to find {text}? Say 'ok' to confirm")
-                            print(f"---> You want to find {text}?")
+                            self.speak(f"You want to find {previous_text}? Say 'ok' to confirm")
+                            print(f"---> You want to find {previous_text}?")
 
                         
                 else:
