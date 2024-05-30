@@ -173,6 +173,7 @@ def load_settings(file_path):
 
 
 def load_system():
+    time.sleep(20)
     settings = load_settings('conf.json')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(device)
