@@ -11,7 +11,7 @@ from tools.classifier import ObjectClassifier
 from tools.instruction import get_object_info, get_obstacle_info
 from tools.virtual_assistant import VirtualAssistant
 virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
-                                         words_per_minute=120, volume=0.9)
+                                         words_per_minute=200, volume=0.9)
 from tools.FPS import FPS
 from tools.realsense_camera import *
 from tools.custom_segmentation import segment_object
@@ -67,8 +67,17 @@ def run():
             pass
 
         if mode == 'off':
-            os.system("sudo shutdown now")
-
+            # check if system is linux:
+            if sys.platform == 'linux':
+                os.system('sudo poweroff')
+            elif sys.platform == 'win32':
+                os.system('shutdown /s /t 1')
+            elif sys.platform == 'darwin':
+                os.system('shutdown -h now')
+            elif sys.platform == 'cygwin':
+                os.system('shutdown -h now')
+            elif sys.platform == 'msys':
+                os.system('shutdown -h now')
         # Implement the functionalities for each mode
         if mode == 'finding':
             if not object_to_find:
