@@ -17,6 +17,7 @@ from nltk.tokenize import word_tokenize
 from nltk import pos_tag
 from huggingface_hub import hf_hub_download
 import time
+import cv2
 
 def download_nltk_resources():
     if not os.path.exists("./../nltk_data/corpora/stopwords"):
@@ -169,7 +170,7 @@ class VirtualAssistant:
                             object_to_find = previous_text
                             break
                     elif text in ["exit", "quit", "stop", "cancel"]:
-                        break
+                        return None, None
                     else:
                         # print("loop 2:", '\ntext: ', text, '\nprev: ', previous_text, '\ncmd: ', command)
                         if not previous_text:
@@ -184,8 +185,8 @@ class VirtualAssistant:
                                 print(confidence)
                         else:
                             previous_text = text
-                            self.speak(f"You want to find {text}? Say 'ok' to confirm")
-                            print(f"---> You want to find {text}?")
+                            self.speak(f"You want to find {previous_text}? Say 'ok' to confirm")
+                            print(f"---> You want to find {previous_text}?")
 
                         
                 else:
@@ -218,14 +219,13 @@ class VirtualAssistant:
             data = stream.read(2048, exception_on_overflow=False)
             if self.recognizer.AcceptWaveform(data):
                 text = self.recognizer.Result()
-                print(text)
                 text = text[14:-3].lower().strip()
                 text = remove_stopwords(text)
                 # if special cases exist, replace them
                 text = ' '.join([special_cases[word] if word in special_cases else word for word in text.split()])
-                print(text)
                 # remove duplicates
                 text = ' '.join(dict.fromkeys(text.split()))
+                print(text)
                 if text:
                     if text in ["ok", "k", "okay"]:
                         # print("loop 1:", '\ntext: ', text, '\nprev: ', previous_text, '\ncmd: ', command)
@@ -243,20 +243,20 @@ class VirtualAssistant:
                         if confidence > 55:
                             previous_text = choice[0]
                             if previous_text == "what time is it":
-                                self.speak("You want to know the current time! Say 'ok' to confirm")
                                 print("You want to know the current time! Say 'ok' to confirm")
+                                self.speak("You want to know the current time! Say 'ok' to confirm")
                             elif previous_text == "what's the weather like":
-                                self.speak("You want to know the current weather! Say 'ok' to confirm")
                                 print("You want to know the current weather! Say 'ok' to confirm")
+                                self.speak("You want to know the current weather! Say 'ok' to confirm")
                             elif previous_text == "what's the traffic sign":
-                                self.speak("You want to know the traffic sign! Say 'ok' to confirm")
                                 print("You want to know the traffic sign! Say 'ok' to confirm")
+                                self.speak("You want to know the traffic sign! Say 'ok' to confirm")
                             elif previous_text == "what's this food":
-                                self.speak("You want to know what food this is! Say 'ok' to confirm")
                                 print("You want to know what food this is! Say 'ok' to confirm")
+                                self.speak("You want to know what food this is! Say 'ok' to confirm")
                             else:
-                                self.speak(f"You want to {previous_text}! Say 'ok' to confirm")
                                 print(f"You want to {previous_text}! Say 'ok' to confirm")
+                                self.speak(f"You want to {previous_text}! Say 'ok' to confirm")
                             print(confidence)
                         else:
                             print("I didn't catch that")
@@ -318,8 +318,17 @@ class VirtualAssistant:
         if not ret:
             print("Error: Could not read frame.")
             return
+        # show image color
+        cv2.imshow("Color", color_frame)
+        cv2.waitKey(0)
         class_label, prob = weather_classifier.predict(color_frame)
         print(class_label, prob)
+        if prob > 0.5:
+            self.speak(f"The weather is {class_label} with {int(prob * 100)} percent confidence.")
+            print(f"The weather is {class_label} with {int(prob * 100)} percent confidence.")
+        else:
+            self.speak("I could not detect the weather.")
+            print("I could not detect the weather.")    
         del weather_classifier
 
     

@@ -11,7 +11,7 @@ from tools.classifier import ObjectClassifier
 from tools.instruction import get_object_info, get_obstacle_info
 from tools.virtual_assistant import VirtualAssistant
 virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
-                                         words_per_minute=120, volume=0.9)
+                                         words_per_minute=200, volume=0.9)
 from tools.FPS import FPS
 from tools.realsense_camera import *
 from tools.custom_segmentation import segment_object
@@ -68,17 +68,19 @@ def run():
             pass
 
         if mode == 'off':
+
             # if system is linux
             if sys.platform.startswith('linux'):
                 os.system("sudo shutdown now")
             elif sys.platform.startswith('win32'):
-                os.system("shutdown /s /t 1")
+                os.system("shutdown /s /t 10")
             elif sys.platform.startswith('darwin'):
                 os.system("sudo shutdown -h now")
             elif sys.platform.startswith('cygwin'):
                 os.system("shutdown -h now")
             elif sys.platform.startswith('win'):
                 os.system("shutdown /s /t 1")
+
 
         # Implement the functionalities for each mode
         if mode == 'finding':
@@ -194,6 +196,7 @@ def load_settings(file_path):
 
 
 def load_system():
+    time.sleep(20)
     settings = load_settings('conf.json')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(device)
