@@ -115,7 +115,7 @@ class VirtualAssistant:
         for item in temp_list:
             self.task_queue.put(item)
         
-    def speak_subprocess(self, text, priority=0):
+    def speak_subprocess(self, text, priority=1):
         time.sleep(0.00001)
         if self.task_queue.qsize() >= 3:
                 self.remove_oldest_item()
