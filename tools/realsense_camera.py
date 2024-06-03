@@ -59,7 +59,6 @@ class RealsenseCamera:
                           (middle_x + square_size, middle_y + square_size), (0, 0, 0), 1)
 
         # Determine if covering is detected
-        print(depth_percentage)
         if depth_percentage > 0.9:  # Adjust threshold as needed
             return True
         else:

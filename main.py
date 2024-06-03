@@ -41,8 +41,8 @@ def run():
     time_between_inform_obstacle = settings.get('time_between_inform_obstacle', 7)
     time_between_inform_obstacle_finding = settings.get('time_between_inform_obstacle_finding', 7)
     time_between_navigation = settings.get('time_between_navigation', 7)
-
-    # yolo.set_object_to_find([object_to_find])  # Delete after debug
+    time_between_navigation_simple = int(time_between_navigation*1.2)
+    yolo.set_object_to_find([object_to_find])  # Delete after debug
     # virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", rs_camera,
     #                                      words_per_minute=assistant_words_per_minute, volume=assistant_volume)
     fps = FPS(nsamples=fps_n_samples)
@@ -54,7 +54,8 @@ def run():
     # Timer variable
     last_navigate_to_object_time = time.time()
     last_inform_obstacle_location_time = time.time()
-
+    last_navigate_to_object_simple_time = time.time()
+    last_distance = -1
     while True:
         t1 = time.time()
         ret, color_frame, depth_frame, frame_number = rs_camera.get_frame_stream()
@@ -67,17 +68,20 @@ def run():
             pass
 
         if mode == 'off':
-            # check if system is linux:
-            if sys.platform == 'linux':
-                os.system('sudo poweroff')
-            elif sys.platform == 'win32':
-                os.system('shutdown /s /t 1')
-            elif sys.platform == 'darwin':
-                os.system('shutdown -h now')
-            elif sys.platform == 'cygwin':
-                os.system('shutdown -h now')
-            elif sys.platform == 'msys':
-                os.system('shutdown -h now')
+
+            # if system is linux
+            if sys.platform.startswith('linux'):
+                os.system("sudo shutdown now")
+            elif sys.platform.startswith('win32'):
+                os.system("shutdown /s /t 10")
+            elif sys.platform.startswith('darwin'):
+                os.system("sudo shutdown -h now")
+            elif sys.platform.startswith('cygwin'):
+                os.system("shutdown -h now")
+            elif sys.platform.startswith('win'):
+                os.system("shutdown /s /t 1")
+
+
         # Implement the functionalities for each mode
         if mode == 'finding':
             if not object_to_find:
@@ -89,20 +93,30 @@ def run():
             print("finding", object_to_find, conf_threshold)
             bbox, confidence = yolo.find_object(color_frame, conf_threshold, iou_threshold, max_det,
                                                 is_visualize)
+            # confidence = max_confidence * np.exp(-decay_rate * distance)
 
-            if bbox:
+            acceptable_confidence = 0.6 * np.exp(2 * last_distance) if last_distance > 0 else confidence
+            print("Acceptable confidence:", acceptable_confidence)
+            if bbox and confidence >= acceptable_confidence:
                 # pass through another classifier to make sure the object is the one we want
                 # TODO: Implement classifier to classify the object
-                object_mask, depth = segment_object(depth_frame, bbox)
-                print("Avg depth:", depth)
-                if depth == 0:
+                object_mask, distance = segment_object(depth_frame, bbox)
+                print("Avg distance:", distance)
+                if distance == 0:
                     continue
-                instruction, rotation_degrees, distance = get_object_info(bbox, depth, min_distance, color_frame,
+                last_distance = distance
+
+                instruction, rotation_degrees, distance = get_object_info(bbox, distance, min_distance, color_frame,
                                                                           is_visualize)
 
                 if time.time() - last_navigate_to_object_time >= time_between_navigation:
-                    virtual_assistant.navigate_to_object(instruction, rotation_degrees, distance)
-                    last_navigate_to_object_time = time.time()
+                    if instruction == "straight" or instruction == "stop":
+                        if time.time() - last_navigate_to_object_simple_time >= time_between_navigation_simple:
+                            virtual_assistant.navigate_to_object()
+                            last_navigate_to_object_simple_time = time.time()
+                    else:
+                        virtual_assistant.navigate_to_object(instruction, rotation_degrees, distance)
+                        last_navigate_to_object_time = time.time()
                 if distance < distance_threshold:
                     distance_threshold_finding =  1
                 else :

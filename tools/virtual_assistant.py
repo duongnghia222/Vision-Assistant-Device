@@ -9,6 +9,7 @@ from thefuzz import process
 import datetime
 from tools.classifier import Classifier
 import threading
+import queue
 from subprocess import call, Popen
 from multiprocessing import Process
 nltk.data.path.append("./../nltk_data")
@@ -64,7 +65,13 @@ class VirtualAssistant:
         self.engine.setProperty('rate', words_per_minute)
         self.engine.setProperty('volume', volume)
         self.callback_event = threading.Event()
-        
+
+        #queue
+        self.task_queue = queue.PriorityQueue()
+        self.current_process = None
+        self.lock = threading.Lock()
+        self.processing_thread = threading.Thread(target=self.process_tasks)
+        self.processing_thread.start()
         download_nltk_resources()
 
         # Load from the file
@@ -84,9 +91,37 @@ class VirtualAssistant:
 
         # Start the event loop to process the speaking command and fire callbacks
         self.engine.startLoop()
+
+    def process_tasks(self):
+        while True:
+            priority, timestamp, text = self.task_queue.get()
+            with self.lock:
+                if self.current_process is not None:
+                    # Terminate the current process if it's a low priority task and a high priority task comes in
+                    self.current_process.terminate()
+                    self.current_process = None
+                self.current_process = Popen(["python", "tools/speak.py", text])
+                self.current_process.wait()
+                self.current_process = None
+            self.task_queue.task_done()
+
+    def remove_oldest_item(self):
+        temp_list = []
+        while not self.task_queue.empty():
+            temp_list.append(self.task_queue.get())
+        temp_list.sort()
+        if temp_list:
+            removed_item = temp_list.pop()
+            print(f"Removing oldest item from queue: {removed_item[2]}")
+        for item in temp_list:
+            self.task_queue.put(item)
         
-    def speak_subprocess(self, text):
-        Popen(["python", "tools/speak.py", text])
+    def speak_subprocess(self, text, priority=1):
+        time.sleep(0.00001)
+        if self.task_queue.qsize() >= 3:
+                self.remove_oldest_item()
+        timestamp = -time.time()
+        self.task_queue.put((priority, timestamp, text))
 
     
     def speak_threading(self, text):
@@ -108,6 +143,7 @@ class VirtualAssistant:
         self.speak("What object do you want to find?")
         stream = self.audio.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=2048)
         stream.start_stream()
+        print("Listening...")
         while not object_to_find:
             data = stream.read(1024, exception_on_overflow=False)
             if self.recognizer.AcceptWaveform(data):
@@ -144,8 +180,8 @@ class VirtualAssistant:
                             # self.speak(f"You want to {confirm_command} {text}! Say 'ok' to confirm")
                             if confidence > 55:
                                 previous_text = choice[0]
-                                self.speak(f"You want to find {text}? Say 'ok' to confirm")
-                                print(f"---> You want to find {text}?")
+                                self.speak(f"You want to find {previous_text}? Say 'ok' to confirm")
+                                print(f"---> You want to find {previous_text}?")
                                 print(confidence)
                         else:
                             previous_text = text
