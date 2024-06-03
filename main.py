@@ -41,7 +41,6 @@ def run():
     time_between_inform_obstacle = settings.get('time_between_inform_obstacle', 7)
     time_between_inform_obstacle_finding = settings.get('time_between_inform_obstacle_finding', 7)
     time_between_navigation = settings.get('time_between_navigation', 7)
-    time_between_navigation_simple = int(time_between_navigation*1.2)
     yolo.set_object_to_find([object_to_find])  # Delete after debug
     # virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", rs_camera,
     #                                      words_per_minute=assistant_words_per_minute, volume=assistant_volume)
@@ -54,7 +53,6 @@ def run():
     # Timer variable
     last_navigate_to_object_time = time.time()
     last_inform_obstacle_location_time = time.time()
-    last_navigate_to_object_simple_time = time.time()
     last_distance = -1
     while True:
         t1 = time.time()
@@ -110,15 +108,10 @@ def run():
                                                                           is_visualize)
 
                 if time.time() - last_navigate_to_object_time >= time_between_navigation:
-                    if instruction == "straight" or instruction == "stop":
-                        if time.time() - last_navigate_to_object_simple_time >= time_between_navigation_simple:
-                            virtual_assistant.navigate_to_object()
-                            last_navigate_to_object_simple_time = time.time()
-                    else:
-                        virtual_assistant.navigate_to_object(instruction, rotation_degrees, distance)
-                        last_navigate_to_object_time = time.time()
-                if distance < distance_threshold:
-                    distance_threshold_finding =  1
+                    virtual_assistant.navigate_to_object(instruction, rotation_degrees, distance)
+                    last_navigate_to_object_time = time.time()
+                if distance < distance_threshold + 100:
+                    distance_threshold_finding =  1 # turn off the obstacle detection
                 else :
                     distance_threshold_finding = distance_threshold
                 obstacles = obstacles_detect(depth_frame, [screen_width // 4, 0,
