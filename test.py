@@ -170,38 +170,51 @@ from tools.virtual_assistant import VirtualAssistant
 import time
 import pyttsx3
 # # Create a VirtualAssistant instance
-from subprocess import call
-phrase = "Hi everyone"
-call(["python", "tools/speak.py", phrase])
-# virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
-#                                          words_per_minute=150, volume=0.9)
+
+
+virtual_assistant = VirtualAssistant("tools/vosk-model-en-us-0.22-lgraph", None,
+                                         words_per_minute=290, volume=0.9)
 
 # virtual_assistant.speak_threading("hello one over")
 # virtual_assistant.speak_threading("hello two over")
 # virtual_assistant.run_on_separate_thread("hello three")
 
 
-
-# virtual_assistant.speak_subprocess(f"Hello, I am your virtual assistant two. How can I help you today?")
-# print(f"Hello, I am your virtual assistant two. How can I help you today?")
-# virtual_assistant.speak_subprocess("Hello, I am your virtual assistant three. How can I help you today?")
-# print("Hello, I am your virtual assistant three. How can I help you today?")
-# virtual_assistant.speak_subprocess("Hello, I am your virtual assistant four. How can I help you today?")
-# print("Hello, I am your virtual assistant four. How can I help you today?")
-# time.sleep(10)
-# virtual_assistant.speak_subprocess("Hello, I am your virtual assistant five. How can I help you today?")
-# print("Hello, I am your virtual assistant five. How can I help you today?")
-# virtual_assistant.speak_subprocess("Hello, I am your virtual assistant six. How can I help you today?")
-# print("Hello, I am your virtual assistant six. How can I help you today?")
-
-# virtual_assistant.speak_threading("Hello, I am your virtual assistant seven. How can I help you today?")
-# print("Hello, I am your virtual assistant seven. How can I help you today?")
-# virtual_assistant.speak_threading("Hello, I am your virtual assistant eight. How can I help you today?")
-# print("Hello, I am your virtual assistant eight. How can I help you today?")
+virtual_assistant.speak_subprocess(f"Hello, I am your virtual assistant one. How can I help you today?", 1)
+print(f"Hello, I am your virtual assistant one. How can I help you today?")
 
 
-for i in range(10):
-    print(i)
+virtual_assistant.speak_subprocess(f"Hello, I am your virtual assistant two. How can I help you today?", 0)
+print(f"Hello, I am your virtual assistant two. How can I help you today?")
+
+
+virtual_assistant.speak_subprocess("Hello, I am your virtual assistant three. How can I help you today?", 1)
+print("Hello, I am your virtual assistant three. How can I help you today?")
+
+
+virtual_assistant.speak_subprocess("Hello, I am your virtual assistant four. How can I help you today?", 0)
+print("Hello, I am your virtual assistant four. How can I help you today?")
+
+
+virtual_assistant.speak_subprocess("Hello, I am your virtual assistant five. How can I help you today?", 0)
+print("Hello, I am your virtual assistant five. How can I help you today?")
+
+
+virtual_assistant.speak_subprocess("Hello, I am your virtual assistant six. How can I help you today?", 3)
+print("Hello, I am your virtual assistant six. How can I help you today?")
+
+
+virtual_assistant.speak_subprocess("Hello, I am your virtual assistant seven. How can I help you today?", 0)
+print("Hello, I am your virtual assistant seven. How can I help you today?")
+
+
+virtual_assistant.speak_subprocess("Hello, I am your virtual assistant eight. How can I help you today?", -1)
+print("Hello, I am your virtual assistant eight. How can I help you today?")
+
+
+
+# for i in range(10):
+#     print(i)
 
 # engine = pyttsx3.init()
 # def onStart(name):
@@ -246,6 +259,7 @@ for i in range(10):
 # print("This will print after the text is spoken.")
 
 import pyttsx3
+import time
 
 # Define the callback functions
 # def onStart(name):
