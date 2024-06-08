@@ -1,6 +1,8 @@
 # Vision Assistant Device
 
-The objective of this project is to design and deploy an object detection device to assist individuals with visual impairments in their daily lives. This system applies computer vision techniques and image processing to help individuals recognize and locate objects in their surrounding environment.
+The objective of this project is to design and deploy an object detection device to assist individuals with visual impairments in their daily lives. This system applies computer vision techniques and image processing to help individuals recognize and locate objects and avoid obstacles.
+
+#vosk #pyttx3 #pyrealsense2 #ultralytics #opencv
 
 ## Project Structure
 
@@ -18,7 +20,7 @@ The main components of the project are:
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/Vision-Assistant-Device.git
+    git clone https://github.com/duongnghia/Vision-Assistant-Device.git
     ```
 2. Navigate to the project directory:
     ```bash
@@ -28,10 +30,7 @@ The main components of the project are:
     ```bash
     pip install -r requirements.txt
     ```
-4. Download the necessary NLTK resources by running the `download_nltk_resources` function from `tools/virtual_assistant.py`:
-    ```bash
-    python -c "from tools.virtual_assistant import download_nltk_resources; download_nltk_resources()"
-    ```
+
 
 ## Usage
 
